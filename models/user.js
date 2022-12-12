@@ -4,10 +4,11 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   firstName: { type: String },
   lastName: { type: String },
-  email: { type: String },
+  email: { type: String, required: true },
   userName: { type: String, required: true, minLength: 4 },
   password: { type: String, required: true, minLength: 6 },
   isAdmin: { type: Boolean },
+  post: [{ type: Schema.Types.ObjectId, ref: 'Post', required: true }],
 });
 
 /* UserSchema.virtual('url').get(function () {
