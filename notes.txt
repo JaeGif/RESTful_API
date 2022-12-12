@@ -1,2 +1,8 @@
 RESTful Routing
 
+/posts/:postid/comments/:commentid/:userid
+
+list of all posts -> post by ID -> list of all comments on that post -> comment by ID -> author of that comment
+
+/users/:userid/userposts/:postid
+
