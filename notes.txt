@@ -6,3 +6,5 @@ list of all posts -> post by ID -> list of all comments on that post -> comment 
 
 /users/:userid/userposts/:postid
 
+list of all users -> user by ID -> all posts by that user -> post by ID
+
