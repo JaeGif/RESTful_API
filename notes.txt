@@ -1,10 +1,14 @@
 RESTful Routing
 
-/posts/:postid/comments/:commentid/:userid
+/posts/:postid/comments/:commentid/:userid      ENDPOINT
 
 list of all posts -> post by ID -> list of all comments on that post -> comment by ID -> author of that comment
 
-/users/:userid/userposts/:postid
+/users/:userid/userposts/same-routing-as-above      ENDPOINT
 
-list of all users -> user by ID -> all posts by that user -> post by ID
+list of all users -> user by ID -> all posts by that user -> post by ID -> ...
+
+/users/:userid/comments/comment:ID     ENDPOINT
+
+routes for all comments by a specific user.
 
