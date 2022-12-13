@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const User = require('../models/user');
+const mongoose = require('mongoose');
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
@@ -49,11 +50,22 @@ exports.posts_post = (req, res, next) => {
   });
 };
 exports.post_get = (req, res, next) => {
-  console.log(req.params.id);
-  Post.findById(req.params.id, function (err, post) {
+  Post.findById(req.params.postid, function (err, post) {
     if (err) return next(err);
     else {
       res.json({ post });
+    }
+  });
+};
+exports.post_comments_get = (req, res, next) => {
+  console.log(req.params.postid);
+  const id = new mongoose.Types.ObjectId(req.params.postid);
+  console.log(id);
+  Comment.find({ post: id }).exec(function (err, comments) {
+    console.log(comments);
+    if (err) return next(err);
+    else {
+      res.json({ comments });
     }
   });
 };
