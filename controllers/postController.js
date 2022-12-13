@@ -58,14 +58,32 @@ exports.post_get = (req, res, next) => {
   });
 };
 exports.post_comments_get = (req, res, next) => {
-  console.log(req.params.postid);
+  // responds with comments matching the inputted postID ONLY
   const id = new mongoose.Types.ObjectId(req.params.postid);
-  console.log(id);
-  Comment.find({ post: id }).exec(function (err, comments) {
-    console.log(comments);
+  Comment.find({ post: id })
+    .sort({ createdAt: 'desc' })
+    .exec(function (err, comments) {
+      if (err) return next(err);
+      else {
+        res.json({ comments });
+      }
+    });
+};
+
+exports.post_comments_post = (req, res, next) => {
+  // makes a new test comment on the specific postID
+  const id = new mongoose.Types.ObjectId(req.params.postid);
+  const DUMMYUSER = new mongoose.Types.ObjectId('639802c24e40eff770f158f4');
+  //dummy comment
+
+  const comment = new Comment({
+    comment: 'I made this dummy comment',
+    post: id,
+    user: DUMMYUSER,
+  }).save((err) => {
     if (err) return next(err);
     else {
-      res.json({ comments });
+      return res.sendStatus(200); //ok
     }
   });
 };

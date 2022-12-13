@@ -11,7 +11,7 @@ router.get('/posts/:postid', postController.post_get);
 // router.delete('/posts/:postid');
 
 router.get('/posts/:postid/comments', postController.post_comments_get);
-router.post('/posts/:postid/comments');
+router.post('/posts/:postid/comments', postController.post_comments_post);
 
 // router.get('/posts/:postid/comments/:commentid');
 // router.put('/posts/:postid/comments/:commentid');
