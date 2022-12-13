@@ -8,7 +8,6 @@ const UserSchema = new Schema({
   userName: { type: String, required: true, minLength: 4 },
   password: { type: String, required: true, minLength: 6 },
   isAdmin: { type: Boolean },
-  post: [{ type: Schema.Types.ObjectId, ref: 'Post', required: true }],
 });
 
 /* UserSchema.virtual('url').get(function () {
