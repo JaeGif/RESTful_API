@@ -65,6 +65,11 @@ exports.post_comments_get = (req, res, next) => {
     .exec(function (err, comments) {
       if (err) return next(err);
       else {
+        let results = [...comments];
+        const { userid } = req.query; // find all comments only by a specific user on a post
+        if (userid) {
+          results.filter((comment) => comment.user.equals(userid));
+        }
         res.json({ comments });
       }
     });
