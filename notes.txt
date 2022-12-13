@@ -12,3 +12,9 @@ list of all users -> user by ID -> all posts by that user -> post by ID -> ...
 
 routes for all comments by a specific user.
 
+You can filter each query by any params in your DB.
+Example to get all comments by a user, can filter comments for user
+
+so 
+comments/:commentid
+comments?queriesforcommentsonlybyuser would work.

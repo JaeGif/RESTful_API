@@ -9,7 +9,7 @@ const { body, validationResult } = require('express-validator');
 
 dayjs.extend(relativeTime);
 
-exports.module.users_get = (req, res, next) => {
+exports.users_get = (req, res, next) => {
   // find all users
   User.find({}).exec(function (err, users) {
     if (err) return next(err);
@@ -20,7 +20,7 @@ exports.module.users_get = (req, res, next) => {
   });
 };
 
-exports.module.users_post = (req, res, next) => {
+exports.users_post = (req, res, next) => {
   if (err) return next(err);
   // make a new user
   else {

@@ -9,15 +9,20 @@ const { body, validationResult } = require('express-validator');
 
 dayjs.extend(relativeTime);
 
-exports.module.posts_get = (req, res, next) => {
+exports.posts_get = (req, res, next) => {
   Post.find({}).exec(function (err, posts) {
     if (err) return next(err);
     else {
       const { title, user, updatedAt } = req.query;
       // process for filtering
       let results = [...posts];
+      // accessed using the query: /posts?title=thistitle
       if (title) {
-        results.filter((post) => post.title === title);
+        // removes whitespace to compare
+        results.filter(
+          (post) =>
+            post.title.replace(/\s/g, '').toLowerCase() === title.toLowerCase()
+        );
       }
       // THIS NEEDS TO BE CHANGED TO COMPARE THE RETURNED USER OBJECT TO THE STR INPUT IN THE URL
       if (user) {
@@ -32,10 +37,23 @@ exports.module.posts_get = (req, res, next) => {
   });
 };
 
-exports.module.posts_post = (req, res, next) => {
+exports.posts_post = (req, res, next) => {
   const post = new Post({
-    title: req.body.title,
-    post: req.body.post,
-    user: dummy, // current user,
+    title: 'new',
+    post: 'post',
+  }).save((err) => {
+    if (err) return next(err);
+    else {
+      return res.sendStatus(200); //ok
+    }
+  });
+};
+exports.post_get = (req, res, next) => {
+  console.log(req.params.id);
+  Post.findById(req.params.id, function (err, post) {
+    if (err) return next(err);
+    else {
+      res.json({ post });
+    }
   });
 };

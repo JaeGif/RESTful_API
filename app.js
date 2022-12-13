@@ -15,6 +15,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const mongoDb = process.env.MONGO_STR;
+mongoose.set('strictQuery', true);
 mongoose
   .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
   .then(console.log('connected to MONGO'));
@@ -30,8 +31,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/posts', postsRouter);
-app.use('/users', usersRouter);
+app.use('/api', postsRouter);
+app.use('/api', usersRouter);
 
 /* // catch 404 and forward to error handler after all other routes
 app.use(function (req, res) {
