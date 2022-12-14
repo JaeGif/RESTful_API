@@ -42,7 +42,7 @@ exports.posts_post = (req, res, next) => {
   }).save((err) => {
     if (err) return next(err);
     else {
-      return res.sendStatus(200); //ok
+      res.sendStatus(200); // ok
     }
   });
 };
@@ -51,6 +51,26 @@ exports.post_get = (req, res, next) => {
     if (err) return next(err);
     else {
       res.json({ post });
+    }
+  });
+};
+
+exports.post_delete = (req, res, next) => {
+  Post.findByIdAndDelete(req.params.postid, function (err, post) {
+    if (err) return next(err);
+    else {
+      res.sendStatus(200);
+    }
+  });
+};
+exports.post_put = (req, res, next) => {
+  Post.findByIdAndUpdate(req.params.postid, {
+    title: req.body.title,
+    post: req.body.post,
+  }).save((err) => {
+    if (err) return next(err);
+    else {
+      res.sendStatus(200);
     }
   });
 };
