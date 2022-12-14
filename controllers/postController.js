@@ -14,15 +14,17 @@ exports.posts_get = (req, res, next) => {
   Post.find({}).exec(function (err, posts) {
     if (err) return next(err);
     else {
-      const { title, user, updatedAt } = req.query;
+      const { title, user } = req.query;
       // process for filtering
       let results = [...posts];
       // accessed using the query: /posts?title=thistitle
       if (title) {
         // removes whitespace to compare
-        results.filter(
-          (post) =>
-            post.title.replace(/\s/g, '').toLowerCase() === title.toLowerCase()
+        // filters whether a post title includes the searched query.
+        let titleMod = title.toLowerCase();
+        console.log(titleMod);
+        results = results.filter((post) =>
+          post.title.toLowerCase().includes(titleMod)
         );
       }
       // THIS NEEDS TO BE CHANGED TO COMPARE THE RETURNED USER OBJECT TO THE STR INPUT IN THE URL
@@ -30,9 +32,7 @@ exports.posts_get = (req, res, next) => {
         results.filter((post) => post.user === user);
       }
       // THIS NEEDS TO BE CHANGED TO BE MORE ROBUST SEARCHING WITHIN TIMEFRAMES
-      if (updatedAt) {
-        results.filter((post) => post.updatedAt === updatedAt);
-      }
+
       res.json({ posts: results });
     }
   });
@@ -40,8 +40,8 @@ exports.posts_get = (req, res, next) => {
 
 exports.posts_post = (req, res, next) => {
   const post = new Post({
-    title: 'new',
-    post: 'post',
+    title: 'hello',
+    post: 'this is a cool post',
   }).save((err) => {
     if (err) return next(err);
     else {

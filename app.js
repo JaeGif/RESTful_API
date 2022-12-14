@@ -12,13 +12,12 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
+
 require('dotenv').config();
 
 const mongoDb = process.env.MONGO_STR;
 mongoose.set('strictQuery', true);
-mongoose
-  .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
-  .then(console.log('connected to MONGO'));
+mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
@@ -48,10 +47,6 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
-
-app.listen(process.env.PORT, () => {
-  console.log(`listening on ${process.env.PORT}`);
 });
 
 module.exports = app;
