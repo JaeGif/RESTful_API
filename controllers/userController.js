@@ -39,3 +39,34 @@ exports.users_post = (req, res, next) => {
     });
   }
 };
+exports.user_get = (req, res, next) => {
+  User.findById(req.params.userid, function (err, user) {
+    if (err) return next(err);
+    else {
+      res.json({ user });
+    }
+  });
+};
+exports.user_put = (req, res, next) => {
+  User.findByIdAndUpdate(req.params.userid, {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    userName: req.body.userName,
+    password: req.body.password, // THIS NEEDS TO BE HASHED
+    isAdmin: req.body.isAdmin,
+  }).save((err) => {
+    if (err) return next(err);
+    else {
+      res.sendStatus(200);
+    }
+  });
+};
+exports.user_delete = (req, res, next) => {
+  User.findByIdAndDelete(req.params.userId, function (err, user) {
+    if (err) return next(err);
+    else {
+      res.sendStatus(200);
+    }
+  });
+};
