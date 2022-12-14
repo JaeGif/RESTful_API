@@ -5,6 +5,7 @@ const logger = require('morgan');
 
 const postsRouter = require('./routes/posts');
 const usersRouter = require('./routes/users');
+const commentsRouter = require('./routes/comments');
 
 const createError = require('http-errors');
 const mongoose = require('mongoose');
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', postsRouter);
 app.use('/api', usersRouter);
+app.use('/api', commentsRouter);
 
 /* // catch 404 and forward to error handler after all other routes
 app.use(function (req, res) {

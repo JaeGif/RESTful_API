@@ -2,7 +2,6 @@ const Post = require('../models/post');
 const Comment = require('../models/comment');
 const User = require('../models/user');
 const mongoose = require('mongoose');
-
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
@@ -14,7 +13,7 @@ exports.posts_get = (req, res, next) => {
   Post.find({}).exec(function (err, posts) {
     if (err) return next(err);
     else {
-      const { title, user } = req.query;
+      const { title, userId } = req.query;
       // process for filtering
       let results = [...posts];
       // accessed using the query: /posts?title=thistitle
@@ -22,16 +21,14 @@ exports.posts_get = (req, res, next) => {
         // removes whitespace to compare
         // filters whether a post title includes the searched query.
         let titleMod = title.toLowerCase();
-        console.log(titleMod);
         results = results.filter((post) =>
           post.title.toLowerCase().includes(titleMod)
         );
       }
       // THIS NEEDS TO BE CHANGED TO COMPARE THE RETURNED USER OBJECT TO THE STR INPUT IN THE URL
-      if (user) {
-        results.filter((post) => post.user === user);
+      if (userId) {
+        results = results.filter((post) => post.user?.toString() === userId);
       }
-      // THIS NEEDS TO BE CHANGED TO BE MORE ROBUST SEARCHING WITHIN TIMEFRAMES
 
       res.json({ posts: results });
     }
@@ -70,7 +67,7 @@ exports.post_comments_get = (req, res, next) => {
         if (userid) {
           results.filter((comment) => comment.user.equals(userid));
         }
-        res.json({ comments });
+        res.json({ comments: results });
       }
     });
 };
