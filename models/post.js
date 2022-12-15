@@ -7,13 +7,9 @@ const PostSchema = new Schema(
     post: { type: String, required: true, minLength: 1, maxLength: 200 },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     comment: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+    published: { type: Boolean, required: true },
   },
   { timestamps: true }
 );
-
-/* PostSchema.virtual('url').get(function () {
-  return `/home/posts/${this._id}`;
-});
- */
 
 module.exports = mongoose.model('Post', PostSchema);

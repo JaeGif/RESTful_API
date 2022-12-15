@@ -13,18 +13,21 @@ exports.posts_get = (req, res, next) => {
   Post.find({}).exec(function (err, posts) {
     if (err) return next(err);
     else {
-      const { title, userId } = req.query;
+      const { title, userid, published } = req.query;
       // process for filtering
       let results = [...posts];
-      // accessed using the query: /posts?title=thistitle
       if (title) {
-        let titleMod = title.toLowerCase();
         results = results.filter((post) =>
-          post.title.toLowerCase().includes(titleMod)
+          post.title.toLowerCase().includes(title.toLowerCase())
         );
       }
-      if (userId) {
-        results = results.filter((post) => post.user?.toString() === userId);
+      if (userid) {
+        // takes uID string
+        results = results.filter((post) => post.user?.toString() === userid);
+      }
+      if (published) {
+        // takes bool
+        results = results.filter((post) => post.published === published);
       }
 
       res.json({ posts: results });
@@ -82,7 +85,7 @@ exports.post_comments_get = (req, res, next) => {
         if (userid) {
           results.filter((comment) => comment.user.equals(userid));
         }
-        res.json({ comments: results });
+        return res.json({ comments: results });
       }
     });
 };
