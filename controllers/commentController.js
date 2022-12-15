@@ -16,24 +16,24 @@ exports.comments_get = (req, res, next) => {
     .exec(function (err, comments) {
       if (err) return next(err);
       else {
-        const { postId, userId } = req.query;
+        const { postid, userid } = req.query;
         // process for filtering
         let results = [...comments];
 
         // search comments by post
-        if (postId) {
+        if (postid) {
           results = results.filter((comment) => {
-            comment.post.equals(postId);
+            comment.post.equals(postid);
           });
         }
 
         // search comments by user
-        if (userId) {
+        if (userid) {
           results = results.filter((comment) => {
-            comment.user.equals(userId);
+            comment.user.equals(userid);
           });
         }
-        res.json({ comments: results });
+        return res.json({ comments: results });
       }
     });
 };
@@ -43,7 +43,7 @@ exports.comment_get = (req, res, next) => {
   Comment.findById(req.params.commentid, function (err, comment) {
     if (err) return next(err);
     else {
-      res.json({ comment });
+      return comment ? res.json({ comment }) : res.sendStatus(404);
     }
   });
 };
