@@ -18,14 +18,11 @@ exports.posts_get = (req, res, next) => {
       let results = [...posts];
       // accessed using the query: /posts?title=thistitle
       if (title) {
-        // removes whitespace to compare
-        // filters whether a post title includes the searched query.
         let titleMod = title.toLowerCase();
         results = results.filter((post) =>
           post.title.toLowerCase().includes(titleMod)
         );
       }
-      // THIS NEEDS TO BE CHANGED TO COMPARE THE RETURNED USER OBJECT TO THE STR INPUT IN THE URL
       if (userId) {
         results = results.filter((post) => post.user?.toString() === userId);
       }
@@ -50,7 +47,7 @@ exports.post_get = (req, res, next) => {
   Post.findById(req.params.postid, function (err, post) {
     if (err) return next(err);
     else {
-      res.json({ post });
+      return post ? res.json({ post }) : res.sendStatus(404);
     }
   });
 };
@@ -64,13 +61,11 @@ exports.post_delete = (req, res, next) => {
   });
 };
 exports.post_put = (req, res, next) => {
-  Post.findByIdAndUpdate(req.params.postid, {
-    title: req.body.title,
-    post: req.body.post,
-  }).save((err) => {
+  // DONE
+  Post.findByIdAndUpdate(req.params.postid, req.body, (err, post) => {
     if (err) return next(err);
     else {
-      res.sendStatus(200);
+      return post ? res.sendStatus(200) : res.sendStatus(404);
     }
   });
 };
@@ -90,22 +85,4 @@ exports.post_comments_get = (req, res, next) => {
         res.json({ comments: results });
       }
     });
-};
-
-exports.post_comments_post = (req, res, next) => {
-  // makes a new test comment on the specific postID
-  const id = new mongoose.Types.ObjectId(req.params.postid);
-  const DUMMYUSER = new mongoose.Types.ObjectId('639802c24e40eff770f158f4');
-  //dummy comment
-
-  const comment = new Comment({
-    comment: 'I made this dummy comment',
-    post: id,
-    user: DUMMYUSER,
-  }).save((err) => {
-    if (err) return next(err);
-    else {
-      return res.sendStatus(200); //ok
-    }
-  });
 };

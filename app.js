@@ -18,7 +18,9 @@ require('dotenv').config();
 
 const mongoDb = process.env.MONGO_STR;
 mongoose.set('strictQuery', true);
-mongoose.connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true });
+mongoose
+  .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
+  .then(console.log('connected'));
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongo connection error'));
@@ -35,10 +37,10 @@ app.use('/api', postsRouter);
 app.use('/api', usersRouter);
 app.use('/api', commentsRouter);
 
-/* // catch 404 and forward to error handler after all other routes
+// catch 404 and forward to error handler after all other routes
 app.use(function (req, res) {
   res.status(404).json();
-}); */
+});
 
 // error handler
 app.use(function (err, req, res, next) {
@@ -48,7 +50,6 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({ err: res.locals.message });
 });
-
 module.exports = app;

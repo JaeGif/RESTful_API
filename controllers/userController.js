@@ -6,6 +6,7 @@ const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const user = require('../models/user');
 
 dayjs.extend(relativeTime);
 
@@ -15,7 +16,29 @@ exports.users_get = (req, res, next) => {
     if (err) return next(err);
     else {
       // respond with users list
-      res.json({ users });
+      // filter by queries
+      const { firstname, lastname, username, isadmin } = req.query;
+      let results = [...users];
+
+      if (firstname) {
+        results = results.filter(
+          (user) => user.firstName.toLowerCase() === firstname.toLowerCase()
+        );
+      }
+      if (lastname) {
+        results = results.filter(
+          (user) => user.lastName.toLowerCase() === lastname.toLowerCase()
+        );
+      }
+      if (username) {
+        results = results.filter((user) =>
+          user.userName.toLowerCase().includes(username.toLowerCase())
+        );
+      }
+      if (isadmin) {
+        results = results.filter((user) => user.isAdmin);
+      }
+      res.json({ users: results });
     }
   });
 };
