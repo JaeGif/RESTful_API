@@ -17,7 +17,7 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 require('dotenv').config();
 
-const mongoDb = process.env.MONGO_URL;
+const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH THIS TO PROD
 mongoose.set('strictQuery', true);
 mongoose
   .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
@@ -33,6 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static('uploads'));
 app.use(cors());
 
 app.use('/api', postsRouter);

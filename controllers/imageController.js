@@ -4,32 +4,34 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const async = require('async');
 const { body, validationResult } = require('express-validator');
-const multer = require('multer');
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
 exports.images_get = (req, res, next) => {
-  Image.find({}).exec(function (err, images) {
+  console.log('images?');
+
+  Image.find({})
+    .limit(3)
+    .exec(function (err, images) {
+      console.log('images?');
+      if (err) return next(err);
+      else {
+        const { userid, postid } = req.query;
+        let results = [...images];
+        return images ? res.json({ results }) : res.sendStatus(404);
+      }
+    });
+};
+exports.image_get = (req, res, next) => {
+  console.log('this is id search');
+  Image.findById(req.params.imageid, (err, image) => {
     if (err) return next(err);
     else {
-      const { userid, postid } = req.query;
-      let results = [...images];
-      console.log(results);
-      return images ? res.json({ results }) : res.sendStatus(404);
+      return image ? res.json({ image }) : res.sendStatus(404);
     }
   });
 };
-exports.images_post = (req, res, next) => {
-  const image = new Image({
-    name: `${Date.now()}-odin-img`,
-    user: req.body.userid, // current user Str
-    post: req.body.postid,
-  });
-  image.img.data = req.file.image.buffer;
-  image.img.contentType = 'image/jpg';
-
-  image.save(function (err) {
+exports.image_delete = (req, res, next) => {
+  console.log('delete img');
+  Image.findByIdAndDelete(req.params.imageid, (err) => {
     if (err) return next(err);
     else {
       return res.sendStatus(200);

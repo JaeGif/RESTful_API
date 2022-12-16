@@ -1,11 +1,14 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const User = require('../models/user');
+const Image = require('../models/image');
+
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
 const { body, validationResult } = require('express-validator');
+const post = require('../models/post');
 
 dayjs.extend(relativeTime);
 
@@ -36,15 +39,50 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  const post = new Post({
-    title: 'hello',
-    post: 'this is a cool post',
-  }).save((err) => {
-    if (err) return next(err);
-    else {
-      res.sendStatus(200); // ok
+  console.log('start');
+  async.series(
+    [
+      function (cb) {
+        console.log('post');
+        const post = new Post({
+          title: 'hello',
+          post: 'this is a cool post',
+          published: false,
+        }).save((err, post) => {
+          if (err) return cb(err);
+          else {
+            return cb(null, post);
+          }
+        });
+      },
+      function (cb) {
+        if (typeof req.files !== 'undefined') {
+          for (let i = 0; i < req.files.length; i++) {
+            console.log('image');
+            const image = new Image({
+              name: `${Date.now()}-odin-img`,
+              url: `${req.files[i].path}`,
+              post: post._id,
+            });
+            image.img.contentType = 'image/jpg';
+
+            image.save(function (err, image) {
+              if (err) return cb(err);
+              else {
+                return cb(null, image);
+              }
+            });
+          }
+        }
+      },
+    ],
+    function (err, post) {
+      if (err) return next(err);
+      else {
+        return res.sendStatus(200);
+      }
     }
-  });
+  );
 };
 exports.post_get = (req, res, next) => {
   Post.findById(req.params.postid, function (err, post) {

@@ -9,6 +9,7 @@ const PostSchema = new Schema(
     like: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     comment: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     published: { type: Boolean, required: true },
+    image: { type: Schema.Types.ObjectId, ref: 'Image' },
   },
   { timestamps: true }
 );
