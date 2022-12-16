@@ -16,7 +16,7 @@ exports.images_get = (req, res, next) => {
       const { userid, postid } = req.query;
       let results = [...images];
       console.log(results);
-      return;
+      return images ? res.json({ results }) : res.sendStatus(404);
     }
   });
 };
