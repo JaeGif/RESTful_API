@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema(
   {
     comment: { type: String, required: true, minLength: 1, maxLength: 200 },
-    like: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    like: { type: Number },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
   },

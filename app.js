@@ -14,7 +14,6 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-const fs = require('fs');
 require('dotenv').config();
 
 const mongoDb = process.env.MONGO_URL; // DO NOT PUSH THIS TO PROD
