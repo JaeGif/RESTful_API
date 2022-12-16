@@ -17,7 +17,7 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 require('dotenv').config();
 
-const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH THIS TO PROD
+const mongoDb = process.env.MONGO_URL; // DO NOT PUSH THIS TO PROD
 mongoose.set('strictQuery', true);
 mongoose
   .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
