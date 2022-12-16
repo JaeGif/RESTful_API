@@ -15,6 +15,8 @@ exports.images_get = (req, res, next) => {
     else {
       const { userid, postid } = req.query;
       let results = [...images];
+      console.log(results);
+      return;
     }
   });
 };
