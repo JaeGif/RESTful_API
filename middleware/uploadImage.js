@@ -1,4 +1,4 @@
-const util = require('util');
+/* const util = require('util');
 const multer = require('multer');
 const { GridFsStorage } = require('multer-gridfs-storage');
 
@@ -24,3 +24,4 @@ var uploadFiles = multer({ storage: storage }).single('file');
 var uploadFilesMiddleware = util.promisify(uploadFiles);
 
 module.exports = uploadFilesMiddleware;
+ */
