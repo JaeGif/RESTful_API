@@ -14,9 +14,10 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
+
 require('dotenv').config();
 
-const mongoDb = process.env.MONGO_URL; // DO NOT PUSH THIS TO PROD
+const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH Mongo_2_URL
 mongoose.set('strictQuery', true);
 mongoose
   .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })

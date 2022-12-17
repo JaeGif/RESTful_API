@@ -1,14 +1,4 @@
-const Post = require('../models/post');
-const Comment = require('../models/comment');
 const User = require('../models/user');
-
-const relativeTime = require('dayjs/plugin/relativeTime');
-const dayjs = require('dayjs');
-const async = require('async');
-const { body, validationResult } = require('express-validator');
-const user = require('../models/user');
-
-dayjs.extend(relativeTime);
 
 exports.users_get = (req, res, next) => {
   // find all users

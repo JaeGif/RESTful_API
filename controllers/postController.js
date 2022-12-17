@@ -1,13 +1,11 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
-const User = require('../models/user');
 const Image = require('../models/image');
 
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
-const { body, validationResult } = require('express-validator');
 const post = require('../models/post');
 
 dayjs.extend(relativeTime);
@@ -42,10 +40,9 @@ exports.posts_post = (req, res, next) => {
   async.series(
     [
       function (cb) {
-        console.log('post');
         const post = new Post({
-          title: 'hello',
-          post: 'this is a cool post',
+          title: req.body.title,
+          post: req.body.post,
           published: false,
         }).save((err, post) => {
           if (err) return cb(err);
