@@ -18,30 +18,17 @@ mongoose
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'mongo connection error'));
-function randomDoc(Model) {
-  Model.count().exec(function (err, count) {
-    // Get a random entry
-    let random = Math.floor(Math.random() * count);
 
-    // Again query all users but only fetch one offset by our random #
-    Model.findOne()
-      .skip(random)
-      .exec(function (err, result) {
-        if (err) return next(err);
-        return result._id;
-      });
-  });
-}
 function populateDB() {
   async.series(
     [
       function (cb) {
         const image = new Image({
-          name: faker.lorem.word,
+          name: faker.lorem.word(),
           img: {
             contentType: 'image/jpg',
           },
-          url: faker.image.nightlife(),
+          url: 'https://loremflickr.com/320/240',
         }).save((err, image) => {
           if (err) console.log(err);
           else {
@@ -68,10 +55,13 @@ function populateDB() {
         const post = new Post({
           title: faker.lorem.words(Math.floor(Math.random() * 4) + 1),
           post: faker.lorem.paragraph(),
-          user: mongoose.Types.ObjectId(randomDoc(User)),
+          user: faker.database.mongodbObjectId(),
           like: faker.datatype.number(300),
           published: true,
-          image: randomDoc(Image),
+          image: {
+            img: faker.database.mongodbObjectId(),
+            url: 'https://loremflickr.com/320/240',
+          },
         }).save((err, post) => {
           if (err) console.log(err);
           else {
@@ -79,12 +69,13 @@ function populateDB() {
           }
         });
       },
+
       function (cb) {
         const comment = new Comment({
           comment: faker.lorem.sentences(),
           like: faker.datatype.number(50),
-          user: mongoose.Types.ObjectId(randomDoc(User)),
-          post: mongoose.Types.ObjectId(randomDoc(Post)),
+          user: faker.database.mongodbObjectId(),
+          post: faker.database.mongodbObjectId(),
         }).save((err, comment) => {
           if (err) return console.log(err);
           else {
@@ -96,51 +87,15 @@ function populateDB() {
     function (err, results) {
       if (err) console.log(err);
       else {
-        return;
+        return console.log('done');
       }
     }
   );
 }
-/* for (let i = 0; i <= population; i++) {
-  const image = new Image({
-    name: faker.lorem.word,
-    img: {
-      contentType: 'image/jpg',
-    },
-    url: faker.image.nightlife(),
-  });
-  const user = new User({
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
-    userName: faker.internet.userName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    isAdmin: false,
-  }).save((err) => {
-    if (err) console.log(err);
-  });
-  const post = new Post({
-    title: faker.lorem.words(Math.floor(Math.random() * 4) + 1),
-    post: faker.lorem.paragraph(),
-    user: randomDoc(User),
-    like: faker.datatype.number(300),
-    published: true,
-    image: randomDoc(Image),
-  }).save((err) => {
-    if (err) console.log(err);
-  });
-  const comment = new Comment({
-    comment: faker.lorem.sentences(),
-    like: faker.datatype.number(50),
-    user: randomDoc(User),
-    post: randomDoc(Post),
-  });
-} */
+
 function run() {
   for (let i = 0; i < population; i++) {
     populateDB();
   }
-  mongoose.connection.close();
-  console.log('finished');
 }
 run();

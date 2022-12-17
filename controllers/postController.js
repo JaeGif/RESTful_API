@@ -39,7 +39,6 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  console.log('start');
   async.series(
     [
       function (cb) {

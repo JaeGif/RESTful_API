@@ -8,7 +8,10 @@ const PostSchema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     like: { type: Number },
     published: { type: Boolean, required: true },
-    image: { type: Schema.Types.ObjectId, ref: 'Image' },
+    image: {
+      img: { type: Schema.Types.ObjectId, ref: 'Image', required: true },
+      url: { type: String, required: true },
+    },
   },
   { timestamps: true }
 );
