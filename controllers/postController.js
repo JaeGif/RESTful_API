@@ -13,16 +13,19 @@ dayjs.extend(relativeTime);
 /* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
 .limit( 10 )
 .sort( '-createdOn' ) */
-const { title, userid, published, page, returnLimit } = req.query;
 
-if (!returnLimit) {
-  const returnLimit = 10;
-}
-if (!page) {
-  const page = 0;
-}
-const skipBy = returnLimit * parseInt(page);
 exports.posts_get = (req, res, next) => {
+  const { title, userid, published, page, returnLimit } = req.query;
+
+  // defaults for paginating
+  if (!returnLimit) {
+    const returnLimit = 10;
+  }
+  if (!page) {
+    const page = 0;
+  }
+  const skipBy = returnLimit * parseInt(page);
+
   Post.find({})
     .limit(returnLimit)
     .skip(skipBy)
