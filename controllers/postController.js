@@ -15,14 +15,13 @@ dayjs.extend(relativeTime);
 .sort( '-createdOn' ) */
 
 exports.posts_get = (req, res, next) => {
-  const { title, userid, published, page, returnLimit } = req.query;
-
+  let { title, userid, published, page, returnLimit } = req.query;
   // defaults for paginating
-  if (!returnLimit) {
-    const returnLimit = 10;
+  if (typeof returnLimit === 'undefined') {
+    returnLimit = 10;
   }
-  if (!page) {
-    const page = 0;
+  if (typeof page === 'undefined') {
+    page = 0;
   }
   const skipBy = returnLimit * parseInt(page);
 
@@ -48,7 +47,6 @@ exports.posts_get = (req, res, next) => {
           // takes bool
           results = results.filter((post) => post.published === published);
         }
-
         res.json({ posts: results });
       }
     });
