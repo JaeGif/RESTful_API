@@ -69,9 +69,9 @@ exports.posts_get = (req, res, next) => {
               let commentUpdatedFormatted = dayjs().to(
                 dayjs(results[i].comments[j].updatedAt)
               );
-
+              console.log(results[i].comments[j]);
               results[i].comments[j] = {
-                ...results[i].comments[j]._doc,
+                ...results[i].comments[j],
                 ...{
                   createdAt: commentCreatedFormatted,
                   updatedAt: commentUpdatedFormatted,
