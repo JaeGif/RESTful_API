@@ -7,33 +7,48 @@ const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
 const post = require('../models/post');
+const { request } = require('express');
 
 dayjs.extend(relativeTime);
+/* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
+.limit( 10 )
+.sort( '-createdOn' ) */
+const { title, userid, published, page, returnLimit } = req.query;
 
+if (!returnLimit) {
+  const returnLimit = 10;
+}
+if (!page) {
+  const page = 0;
+}
+const skipBy = returnLimit * parseInt(page);
 exports.posts_get = (req, res, next) => {
-  Post.find({}).exec(function (err, posts) {
-    if (err) return next(err);
-    else {
-      const { title, userid, published } = req.query;
-      // process for filtering
-      let results = [...posts];
-      if (title) {
-        results = results.filter((post) =>
-          post.title.toLowerCase().includes(title.toLowerCase())
-        );
-      }
-      if (userid) {
-        // takes uID string
-        results = results.filter((post) => post.user?.toString() === userid);
-      }
-      if (published) {
-        // takes bool
-        results = results.filter((post) => post.published === published);
-      }
+  Post.find({})
+    .limit(returnLimit)
+    .skip(skipBy)
+    .sort('-createdAt')
+    .exec(function (err, posts) {
+      if (err) return next(err);
+      else {
+        // process for filtering
+        let results = [...posts];
+        if (title) {
+          results = results.filter((post) =>
+            post.title.toLowerCase().includes(title.toLowerCase())
+          );
+        }
+        if (userid) {
+          // takes uID string
+          results = results.filter((post) => post.user?.toString() === userid);
+        }
+        if (published) {
+          // takes bool
+          results = results.filter((post) => post.published === published);
+        }
 
-      res.json({ posts: results });
-    }
-  });
+        res.json({ posts: results });
+      }
+    });
 };
 
 exports.posts_post = (req, res, next) => {
