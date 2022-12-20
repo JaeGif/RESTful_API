@@ -55,11 +55,18 @@ exports.posts_get = (req, res, next) => {
             let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
             let updatedFormatted = dayjs().to(dayjs(results[i].updatedAt));
 
+            let editedPost = false;
+
+            if (String(results[i].createdAt) !== String(results[i].updatedAt)) {
+              editedPost = true;
+            }
+
             results[i] = {
               ...results[i]._doc,
               ...{
                 createdAt: createdFormatted,
                 updatedAt: updatedFormatted,
+                edited: editedPost,
               },
             };
             for (let j = 0; j < results[i].comments.length; j++) {
@@ -69,12 +76,20 @@ exports.posts_get = (req, res, next) => {
               let commentUpdatedFormatted = dayjs().to(
                 dayjs(results[i].comments[j].updatedAt)
               );
-              console.log(results[i].comments[j]);
+              let edited = false;
+
+              if (
+                String(results[i].comments[j].createdAt) !==
+                String(results[i].comments[j].updatedAt)
+              ) {
+                edited = true;
+              }
               results[i].comments[j] = {
                 ...results[i].comments[j],
                 ...{
                   createdAt: commentCreatedFormatted,
                   updatedAt: commentUpdatedFormatted,
+                  edited: edited,
                 },
               };
             }
