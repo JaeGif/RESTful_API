@@ -47,6 +47,41 @@ exports.posts_get = (req, res, next) => {
           // takes bool
           results = results.filter((post) => post.published === published);
         }
+
+        // Convert DateTime.
+
+        for (let i = 0; i < results.length; i++) {
+          try {
+            let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
+            let updatedFormatted = dayjs().to(dayjs(results[i].updatedAt));
+
+            results[i] = {
+              ...results[i]._doc,
+              ...{
+                createdAt: createdFormatted,
+                updatedAt: updatedFormatted,
+              },
+            };
+            for (let j = 0; j < results[i].comments.length; j++) {
+              let commentCreatedFormatted = dayjs().to(
+                dayjs(results[i].comments[j].createdAt)
+              );
+              let commentUpdatedFormatted = dayjs().to(
+                dayjs(results[i].comments[j].updatedAt)
+              );
+
+              results[i].comments[j] = {
+                ...results[i].comments[j]._doc,
+                ...{
+                  createdAt: commentCreatedFormatted,
+                  updatedAt: commentUpdatedFormatted,
+                },
+              };
+            }
+          } catch (error) {
+            console.log('error parsing post/comment dates', error);
+          }
+        }
         res.json({ posts: results });
       }
     });
