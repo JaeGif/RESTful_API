@@ -6,8 +6,8 @@ const User = require('../models/user');
 const Comment = require('../models/comment');
 const Image = require('../models/image');
 const async = require('async');
+const fs = require('fs');
 
-const population = 5;
 // import { faker } from '@faker-js/faker/locale/de';
 const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH THIS TO PROD
 mongoose.set('strictQuery', true);
@@ -19,6 +19,17 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
+const user0Id = faker.database.mongodbObjectId();
+fs.mkdirSync(`./uploads/${user0Id}`, { recursive: true });
+const user1Id = faker.database.mongodbObjectId();
+fs.mkdirSync(`./uploads/${user1Id}`, { recursive: true });
+const user2Id = faker.database.mongodbObjectId();
+fs.mkdirSync(`./uploads/${user2Id}`, { recursive: true });
+const user3Id = faker.database.mongodbObjectId();
+fs.mkdirSync(`./uploads/${user3Id}`, { recursive: true });
+const user4Id = faker.database.mongodbObjectId();
+fs.mkdirSync(`./uploads/${user4Id}`, { recursive: true });
+
 const user0 = new User({
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
@@ -26,8 +37,13 @@ const user0 = new User({
   email: faker.internet.email(),
   password: faker.internet.password(),
   isAdmin: false,
-  _id: faker.database.mongodbObjectId(),
+  _id: user0Id,
+  avatar: {
+    id: faker.database.mongodbObjectId(),
+    url: `https://instaapi-production.up.railway.app/uploads/${user0Id}/avatar.jpg`,
+  },
 });
+
 const user1 = new User({
   firstName: faker.name.firstName(),
   lastName: faker.name.lastName(),
@@ -35,7 +51,11 @@ const user1 = new User({
   email: faker.internet.email(),
   password: faker.internet.password(),
   isAdmin: false,
-  _id: faker.database.mongodbObjectId(),
+  _id: user1Id,
+  avatar: {
+    id: faker.database.mongodbObjectId(),
+    url: `https://instaapi-production.up.railway.app/uploads/${user1Id}/avatar.jpg`,
+  },
 });
 const user2 = new User({
   firstName: faker.name.firstName(),
@@ -44,7 +64,11 @@ const user2 = new User({
   email: faker.internet.email(),
   password: faker.internet.password(),
   isAdmin: false,
-  _id: faker.database.mongodbObjectId(),
+  _id: user2Id,
+  avatar: {
+    id: faker.database.mongodbObjectId(),
+    url: `https://instaapi-production.up.railway.app/uploads/${user2Id}/avatar.jpg`,
+  },
 });
 const user3 = new User({
   firstName: faker.name.firstName(),
@@ -53,7 +77,11 @@ const user3 = new User({
   email: faker.internet.email(),
   password: faker.internet.password(),
   isAdmin: false,
-  _id: faker.database.mongodbObjectId(),
+  _id: user3Id,
+  avatar: {
+    id: faker.database.mongodbObjectId(),
+    url: `https://instaapi-production.up.railway.app/uploads/${user3Id}/avatar.jpg`,
+  },
 });
 const user4 = new User({
   firstName: faker.name.firstName(),
@@ -62,7 +90,11 @@ const user4 = new User({
   email: faker.internet.email(),
   password: faker.internet.password(),
   isAdmin: false,
-  _id: faker.database.mongodbObjectId(),
+  _id: user4Id,
+  avatar: {
+    id: faker.database.mongodbObjectId(),
+    url: `https://instaapi-production.up.railway.app/uploads/${user4Id}/avatar.jpg`,
+  },
 });
 
 user0.save();

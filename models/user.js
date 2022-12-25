@@ -8,6 +8,10 @@ const UserSchema = new Schema({
   userName: { type: String, required: true, minLength: 4 },
   password: { type: String, required: true, minLength: 6 },
   isAdmin: { type: Boolean },
+  avatar: {
+    id: { type: Schema.Types.ObjectId, ref: 'Image' },
+    url: { type: String },
+  },
 });
 
 // Export model
