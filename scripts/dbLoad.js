@@ -128,6 +128,10 @@ const comment0 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -138,6 +142,10 @@ const comment1 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -148,6 +156,10 @@ const comment2 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -158,6 +170,10 @@ const comment3 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -168,6 +184,10 @@ const comment4 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -178,6 +198,10 @@ const comment5 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -188,6 +212,10 @@ const comment6 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -198,6 +226,10 @@ const comment7 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -208,6 +240,10 @@ const comment8 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -218,6 +254,10 @@ const comment9 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 user = randUser();
@@ -228,6 +268,10 @@ const comment10 = new Comment({
   user: {
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
 });
 comment0.save();
@@ -282,6 +326,10 @@ const post0 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -301,6 +349,10 @@ const post1 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -320,6 +372,10 @@ const post2 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -353,6 +409,10 @@ const post3 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -380,6 +440,10 @@ const post4 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -399,6 +463,10 @@ const post5 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -418,6 +486,10 @@ const post6 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,
@@ -437,6 +509,10 @@ const post7 = new Post({
     lastName: user.lastName,
     userName: user.userName,
     id: user._id,
+    avatar: {
+      id: user.avatar.id,
+      url: user.avatar.url,
+    },
   },
   like: faker.datatype.number(10),
   published: true,

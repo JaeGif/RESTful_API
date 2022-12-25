@@ -8,6 +8,10 @@ const CommentSchema = new Schema(
     user: {
       id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
       userName: { type: String, required: true },
+      avatar: {
+        id: { type: Schema.Types.ObjectId, ref: 'Image' },
+        url: { type: String },
+      },
     },
   },
   { timestamps: true }
