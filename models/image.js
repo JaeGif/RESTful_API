@@ -2,9 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ImageSchema = new Schema({
+  _id: { type: String },
   name: { type: String },
   img: {
     contentType: String,
+    alt: { type: String },
     filter: { type: String },
     adjustments: {
       brightness: { type: Number },

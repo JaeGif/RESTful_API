@@ -4,7 +4,6 @@ const CommentSchema = require('./comment');
 
 const PostSchema = new Schema(
   {
-    title: { type: String, required: true, minLength: 1, maxLength: 50 },
     post: { type: String, required: true, minLength: 1, maxLength: 2000 },
     user: {
       id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -16,14 +15,10 @@ const PostSchema = new Schema(
     },
     like: { type: Number },
     published: { type: Boolean, required: true },
-    image: {
-      id: { type: Schema.Types.ObjectId, ref: 'Image', required: true },
-      url: { type: String, required: true },
-    },
+    image: [{ type: Schema.Types.ObjectId, ref: 'Image' }],
     comments: [],
   },
   { timestamps: true }
 );
-// pushing for deploy
 
 module.exports = mongoose.model('Post', PostSchema);

@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const Image = require('../models/image');
+const fs = require('fs');
 
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
@@ -103,49 +104,72 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  async.series(
-    [
-      function (cb) {
-        const post = new Post({
-          title: req.body.title,
-          post: req.body.post,
-          published: false,
-        }).save((err, post) => {
-          if (err) return cb(err);
-          else {
-            return cb(null, post);
-          }
-        });
-      },
-      function (cb) {
-        if (typeof req.files !== 'undefined') {
-          for (let i = 0; i < req.files.length; i++) {
-            console.log('image');
-            const image = new Image({
-              name: `${Date.now()}-odin-img`,
-              url: `${req.files[i].path}`,
-              post: post._id,
-            });
-            image.img.contentType = 'image/jpg';
+  const dummyUser = {
+    avatar: {
+      id: '9263f45c70879dbc56faa5c4',
+      url: 'https://instaapi-production.up.railway.app/uploads/823fce52b33a845ef7554dd9/avatar.jpg',
+    },
+    _id: '823fce52b33a845ef7554dd9',
+    firstName: 'Neal',
+    lastName: 'Morissette',
+    email: 'Tia_Kris@hotmail.com',
+    userName: 'Eldridge_Feest40',
+    isAdmin: false,
+  };
 
-            image.save(function (err, image) {
-              if (err) return cb(err);
-              else {
-                return cb(null, image);
-              }
-            });
-          }
-        }
-      },
-    ],
-    function (err, post) {
-      if (err) return next(err);
-      else {
-        return res.sendStatus(200);
-      }
+  let idArray = [];
+  let newPath = [];
+  for (let i = 0; i < req.files.length; i++) {
+    const newImgId = mongoose.Types.ObjectId();
+    idArray.push(newImgId);
+    const oldPath = `${req.files[i].path}`;
+    const newPathStr = `uploads/${dummyUser._id}/${req.files[i].filename}`;
+
+    fs.rename(oldPath, newPathStr, function (err) {
+      if (err) throw err;
+      console.log('Successfully renamed - AKA moved!');
+      newPath.push(newPathStr);
+    });
+  }
+
+  if (typeof req.files !== 'undefined') {
+    for (let i = 0; i < req.files.length; i++) {
+      const image = new Image({
+        name: `${Date.now()}-odin-img`,
+        url: newPath[i],
+        _id: idArray[i].toString(),
+      });
+      image.img.contentType = 'image/jpg';
+      image.save(function (err, image) {
+        if (err) console.log(err);
+      });
     }
-  );
+  }
+  console.log('post');
+
+  const post = new Post({
+    post: req.body.post,
+    user: {
+      id: dummyUser._id,
+      userName: dummyUser.userName,
+      avatar: {
+        id: dummyUser.avatar.id,
+        url: dummyUser.avatar.url,
+      },
+    },
+    like: 0,
+    published: true,
+    image: idArray,
+    comments: [],
+  }).save((err, post) => {
+    if (err) return err;
+    else {
+      console.log('saving');
+      return res.json({ post });
+    }
+  });
 };
+
 exports.post_get = (req, res, next) => {
   Post.findById(req.params.postid, function (err, post) {
     if (err) return next(err);
