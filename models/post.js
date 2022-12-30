@@ -15,7 +15,12 @@ const PostSchema = new Schema(
     },
     like: { type: Number },
     published: { type: Boolean, required: true },
-    image: [{ type: Schema.Types.ObjectId, ref: 'Image' }],
+    image: {
+      id: { type: Schema.Types.ObjectId, ref: 'Image' },
+      url: { type: String },
+      alt: { type: String },
+      filter: { type: String },
+    },
     comments: [],
   },
   { timestamps: true }

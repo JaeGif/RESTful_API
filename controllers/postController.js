@@ -9,6 +9,7 @@ const dayjs = require('dayjs');
 const async = require('async');
 const post = require('../models/post');
 const { request } = require('express');
+const image = require('../models/image');
 
 dayjs.extend(relativeTime);
 /* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
@@ -116,38 +117,31 @@ exports.posts_post = (req, res, next) => {
     userName: 'Eldridge_Feest40',
     isAdmin: false,
   };
+  console.log(req.files);
 
-  let idArray = [];
-  let newPath = [];
-  for (let i = 0; i < req.files.length; i++) {
-    const newImgId = mongoose.Types.ObjectId();
-    idArray.push(newImgId);
-    const oldPath = `${req.files[i].path}`;
-    const newPathStr = `uploads/${dummyUser._id}/${req.files[i].filename}`;
+  const newImgId = mongoose.Types.ObjectId();
+  const oldPath = `${req.files[0].path}`;
+  const newPathStr = `uploads/${dummyUser._id}/${req.files[0].filename}`;
 
-    fs.rename(oldPath, newPathStr, function (err) {
-      if (err) throw err;
-      console.log('Successfully renamed - AKA moved!');
-      newPath.push(newPathStr);
-    });
-  }
+  fs.renameSync(oldPath, newPathStr, function (err) {
+    if (err) throw err;
+    console.log('Successfully renamed - AKA moved!');
+    newPath.push(newPathStr);
+  });
 
   if (typeof req.files !== 'undefined') {
-    for (let i = 0; i < req.files.length; i++) {
-      const image = new Image({
-        name: `${Date.now()}-odin-img`,
-        url: newPath[i],
-        _id: idArray[i].toString(),
-        alt: 'picture',
-        filter: 'none',
-      });
-      image.img.contentType = 'image/jpg';
-      image.save(function (err, image) {
-        if (err) console.log(err);
-      });
-    }
+    const image = new Image({
+      name: `${Date.now()}-odin-img`,
+      url: newPathStr,
+      _id: newImgId.toString(),
+      alt: 'picture',
+      filter: 'none',
+    });
+    image.img.contentType = 'image/jpg';
+    image.save(function (err, image) {
+      if (err) console.log(err);
+    });
   }
-  console.log('post');
 
   const post = new Post({
     post: req.body.post,
@@ -161,12 +155,16 @@ exports.posts_post = (req, res, next) => {
     },
     like: 0,
     published: true,
-    image: idArray,
+    image: {
+      id: newImgId.toString(),
+      url: newPathStr,
+      alt: 'picture',
+      filter: 'none',
+    },
     comments: [],
   }).save((err, post) => {
     if (err) return err;
     else {
-      console.log('saving');
       return res.json({ post });
     }
   });
