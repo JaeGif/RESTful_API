@@ -24,5 +24,6 @@ const PostSchema = new Schema(
   },
   { timestamps: true }
 );
+// pushing for deploy
 
 module.exports = mongoose.model('Post', PostSchema);
