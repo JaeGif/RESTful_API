@@ -105,20 +105,6 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  const dummyUser = {
-    avatar: {
-      id: '9263f45c70879dbc56faa5c4',
-      url: 'https://instaapi-production.up.railway.app/uploads/823fce52b33a845ef7554dd9/avatar.jpg',
-    },
-    _id: '823fce52b33a845ef7554dd9',
-    firstName: 'Neal',
-    lastName: 'Morissette',
-    email: 'Tia_Kris@hotmail.com',
-    userName: 'Eldridge_Feest40',
-    isAdmin: false,
-  };
-  console.log(req.files);
-
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
   const newPathStr = `uploads/${dummyUser._id}/${req.files[0].filename}`;
@@ -146,11 +132,11 @@ exports.posts_post = (req, res, next) => {
   const post = new Post({
     post: req.body.post,
     user: {
-      id: dummyUser._id,
-      userName: dummyUser.userName,
+      id: req.body.user._id,
+      userName: req.body.user.userName,
       avatar: {
-        id: dummyUser.avatar.id,
-        url: dummyUser.avatar.url,
+        id: req.body.user.avatar.id,
+        url: req.body.user.avatar.url,
       },
     },
     like: 0,
