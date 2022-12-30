@@ -105,9 +105,11 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
+  let user = JSON.parse(req.body.user);
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
-  const newPathStr = `uploads/${dummyUser._id}/${req.files[0].filename}`;
+  const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
+  console.log(newPathStr);
 
   fs.renameSync(oldPath, newPathStr, function (err) {
     if (err) throw err;
@@ -132,11 +134,11 @@ exports.posts_post = (req, res, next) => {
   const post = new Post({
     post: req.body.post,
     user: {
-      id: req.body.user._id,
-      userName: req.body.user.userName,
+      id: user._id,
+      userName: user.userName,
       avatar: {
-        id: req.body.user.avatar.id,
-        url: req.body.user.avatar.url,
+        id: user.avatar.id,
+        url: user.avatar.url,
       },
     },
     like: 0,
