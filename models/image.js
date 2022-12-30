@@ -5,7 +5,7 @@ const ImageSchema = new Schema({
   _id: { type: String },
   name: { type: String },
   img: {
-    contentType: String,
+    contentType: { type: String },
     alt: { type: String },
     filter: { type: String },
     adjustments: {
