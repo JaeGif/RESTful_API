@@ -179,10 +179,10 @@ exports.post_delete = (req, res, next) => {
 exports.post_post = (req, res, next) => {
   // DONE
   if (!req.body.user) return res.sendStatus(401);
+  let user = JSON.parse(req.body.user);
 
-  /*   let user = JSON.parse(req.body.user);
-   */ let updateFields = {};
-  let user = {
+  let updateFields = {};
+  /*   let user = {
     avatar: {
       id: '96aeffbdfeafb48bbfbc8cea',
       url: 'https://instaapi-production.up.railway.app/uploads/fe0db393eeaeaa8530a38e1d/avatar.jpg',
@@ -195,7 +195,7 @@ exports.post_post = (req, res, next) => {
     password: 'XECx6ylxRz4ylw5',
     isAdmin: false,
     __v: 0,
-  };
+  }; */
 
   if (req.body.comment) {
     const comment = new Comment({
