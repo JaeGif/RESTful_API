@@ -2,13 +2,11 @@ const Post = require('../models/post');
 const Comment = require('../models/comment');
 const Image = require('../models/image');
 const fs = require('fs');
-
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const async = require('async');
 const post = require('../models/post');
-const { request } = require('express');
 const image = require('../models/image');
 
 dayjs.extend(relativeTime);
@@ -108,12 +106,10 @@ exports.posts_post = (req, res, next) => {
   let user = JSON.parse(req.body.user);
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
-  const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
-  console.log(newPathStr);
+  const newPathStr = `uploads/${user.id}/${req.files[0].filename}`;
 
   fs.renameSync(oldPath, newPathStr, function (err) {
     if (err) throw err;
-    console.log('Successfully renamed - AKA moved!');
     newPath.push(newPathStr);
   });
 
@@ -134,7 +130,7 @@ exports.posts_post = (req, res, next) => {
   const post = new Post({
     post: req.body.post,
     user: {
-      id: user._id,
+      id: user.id,
       userName: user.userName,
       avatar: {
         id: user.avatar.id,
