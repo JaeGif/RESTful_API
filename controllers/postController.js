@@ -174,8 +174,6 @@ exports.post_delete = (req, res, next) => {
 
 exports.post_post = (req, res, next) => {
   // DONE
-
-  let user = JSON.parse(req.body.user);
   let updateFields = {};
   /*   let user = {
     avatar: {
@@ -191,8 +189,21 @@ exports.post_post = (req, res, next) => {
     isAdmin: false,
     __v: 0,
   }; */
-  console.log(user);
+  if (req.body.like) {
+    console.log(req.body);
+    updateFields = { like: Number(req.body.like) };
+    Post.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+      console.log('adding like');
+      if (err) console.log(err);
+      else {
+        console.log('returning like');
+        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+      }
+    });
+  }
   if (req.body.comment) {
+    let user = JSON.parse(req.body.user);
+
     const comment = new Comment({
       comment: req.body.comment,
       user: {
@@ -223,6 +234,8 @@ exports.post_post = (req, res, next) => {
     });
   }
   if (req.body.post) {
+    let user = JSON.parse(req.body.user);
+
     updateFields = { post: req.body.post };
     Post.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
       if (err) return next(err);
