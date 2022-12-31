@@ -8,7 +8,7 @@ router.get('/posts', postController.posts_get);
 router.post('/posts', upload.array('image', 10), postController.posts_post);
 
 router.get('/posts/:postid', postController.post_get);
-router.put('/posts/:postid', postController.post_put);
+router.post('/posts/:postid', postController.post_post);
 router.delete('/posts/:postid', postController.post_delete);
 
 router.get('/posts/:postid/comments', postController.post_comments_get);

@@ -175,14 +175,67 @@ exports.post_delete = (req, res, next) => {
     }
   });
 };
-exports.post_put = (req, res, next) => {
+
+exports.post_post = (req, res, next) => {
   // DONE
-  Post.findByIdAndUpdate(req.params.postid, req.body, (err, post) => {
-    if (err) return next(err);
-    else {
-      return post ? res.sendStatus(200) : res.sendStatus(404);
-    }
-  });
+  if (!req.body.user) return res.sendStatus(401);
+
+  /*   let user = JSON.parse(req.body.user);
+   */ let updateFields = {};
+  let user = {
+    avatar: {
+      id: '96aeffbdfeafb48bbfbc8cea',
+      url: 'https://instaapi-production.up.railway.app/uploads/fe0db393eeaeaa8530a38e1d/avatar.jpg',
+    },
+    _id: 'fe0db393eeaeaa8530a38e1d',
+    firstName: 'Osborne',
+    lastName: 'Crooks',
+    email: 'Lavonne_Bradtke@yahoo.com',
+    userName: 'Rhea67',
+    password: 'XECx6ylxRz4ylw5',
+    isAdmin: false,
+    __v: 0,
+  };
+
+  if (req.body.comment) {
+    const comment = new Comment({
+      comment: req.body.comment,
+      user: {
+        id: user._id,
+        userName: user.userName,
+        avatar: {
+          id: user.avatar.id,
+          url: user.avatar.url,
+        },
+      },
+    }).save((err, comment) => {
+      if (err) return next(err);
+      else {
+        updateFields = {
+          $push: { comments: comment },
+        };
+        Post.findByIdAndUpdate(
+          req.params.postid,
+          updateFields,
+          (err, fullPost) => {
+            if (err) return next(err);
+            else {
+              return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+            }
+          }
+        );
+      }
+    });
+  }
+  if (req.body.post) {
+    updateFields = { post: req.body.post };
+    Post.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+      if (err) return next(err);
+      else {
+        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+      }
+    });
+  }
 };
 exports.post_comments_get = (req, res, next) => {
   // responds with comments matching the inputted postID ONLY
