@@ -180,7 +180,6 @@ exports.post_post = (req, res, next) => {
   // DONE
 
   let user = JSON.parse(req.body.user);
-
   let updateFields = {};
   /*   let user = {
     avatar: {
@@ -196,12 +195,12 @@ exports.post_post = (req, res, next) => {
     isAdmin: false,
     __v: 0,
   }; */
-
+  console.log(user);
   if (req.body.comment) {
     const comment = new Comment({
       comment: req.body.comment,
       user: {
-        id: user._id,
+        id: user.id,
         userName: user.userName,
         avatar: {
           id: user.avatar.id,
@@ -209,7 +208,7 @@ exports.post_post = (req, res, next) => {
         },
       },
     }).save((err, comment) => {
-      if (err) return next(err);
+      if (err) return console.log(err);
       else {
         updateFields = {
           $push: { comments: comment },

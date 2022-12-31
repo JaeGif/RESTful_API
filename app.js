@@ -14,7 +14,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
-
+const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const mongoDb = process.env.MONGO_URL; // DO NOT PUSH Mongo_2_URL
@@ -29,8 +29,9 @@ db.on('error', console.error.bind(console, 'mongo connection error'));
 const app = express();
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static('uploads'));
