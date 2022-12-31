@@ -178,7 +178,7 @@ exports.post_delete = (req, res, next) => {
 
 exports.post_post = (req, res, next) => {
   // DONE
-  if (!req.body.user) return res.sendStatus(401);
+
   let user = JSON.parse(req.body.user);
 
   let updateFields = {};
