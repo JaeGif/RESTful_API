@@ -118,8 +118,8 @@ exports.posts_post = (req, res, next) => {
       name: `${Date.now()}-odin-img`,
       url: newPathStr,
       _id: newImgId.toString(),
-      alt: 'picture',
-      filter: 'none',
+      alt: req.body.alt,
+      filter: req.body.filter,
     });
     image.img.contentType = 'image/jpg';
     image.save(function (err, image) {
@@ -142,8 +142,8 @@ exports.posts_post = (req, res, next) => {
     image: {
       id: newImgId.toString(),
       url: newPathStr,
-      alt: 'picture',
-      filter: 'none',
+      alt: req.body.alt,
+      filter: req.body.filter,
     },
     comments: [],
   }).save((err, post) => {
