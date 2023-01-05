@@ -8,6 +8,7 @@ const dayjs = require('dayjs');
 const async = require('async');
 const post = require('../models/post');
 const image = require('../models/image');
+const { contentType } = require('express/lib/response');
 
 dayjs.extend(relativeTime);
 /* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
@@ -104,6 +105,21 @@ exports.posts_get = (req, res, next) => {
 
 exports.posts_post = (req, res, next) => {
   let user = JSON.parse(req.body.user);
+  let location = req.body.location;
+  let alt = req.body.alt;
+  let post = req.body.post;
+  const filter = req.body.filter;
+
+  let modifiedAlt = alt;
+  let locationStr = location;
+
+  if (locationStr == 'null') {
+    locationStr = 'an unknown location';
+  }
+  if (modifiedAlt == 'null') {
+    modifiedAlt = `An image by ${user.userName} taken in ${locationStr}`;
+  }
+
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
   const newPathStr = `uploads/${user.id}/${req.files[0].filename}`;
@@ -118,17 +134,17 @@ exports.posts_post = (req, res, next) => {
       name: `${Date.now()}-odin-img`,
       url: newPathStr,
       _id: newImgId.toString(),
-      alt: req.body.alt,
-      filter: req.body.filter,
+      alt: modifiedAlt,
+      filter: filter,
     });
-    image.img.contentType = 'image/jpg';
+    image.img.contentType = req.files[0].mimetype;
     image.save(function (err, image) {
       if (err) console.log(err);
     });
   }
 
-  const post = new Post({
-    post: req.body.post,
+  const newPost = new Post({
+    post: post,
     user: {
       id: user.id,
       userName: user.userName,
@@ -142,14 +158,17 @@ exports.posts_post = (req, res, next) => {
     image: {
       id: newImgId.toString(),
       url: newPathStr,
-      alt: req.body.alt,
-      filter: req.body.filter,
+      alt: modifiedAlt,
+      filter: filter,
+      contentType: req.files[0].mimetype,
     },
+    location: location,
     comments: [],
-  }).save((err, post) => {
+  }).save((err, newPost) => {
+    console.log(newPost.image.contentType);
     if (err) return err;
     else {
-      return res.json({ post });
+      return res.json({ newPost });
     }
   });
 };

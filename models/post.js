@@ -20,7 +20,9 @@ const PostSchema = new Schema(
       url: { type: String },
       alt: { type: String },
       filter: { type: String },
+      contentType: { type: String },
     },
+    location: { type: String },
     comments: [],
   },
   { timestamps: true }

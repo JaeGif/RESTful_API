@@ -10,4 +10,3 @@ router.put('/comments/:commentid', commentController.comment_put);
 router.delete('/comments/:commentid', commentController.comment_delete);
 
 module.exports = router;
-// push for build
