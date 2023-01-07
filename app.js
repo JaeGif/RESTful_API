@@ -15,6 +15,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
+
 require('dotenv').config();
 
 const mongoDb = process.env.MONGO_URL; // DO NOT PUSH Mongo_2_URL

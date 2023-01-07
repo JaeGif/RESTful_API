@@ -104,6 +104,7 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
+  console.log(req.files);
   let user = JSON.parse(req.body.user);
   let location = req.body.location;
   let alt = req.body.alt;
@@ -119,10 +120,10 @@ exports.posts_post = (req, res, next) => {
   if (modifiedAlt == 'null') {
     modifiedAlt = `An image by ${user.userName} taken in ${locationStr}`;
   }
-
+  console.log('file', req.files[0]);
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
-  const newPathStr = `uploads/${user.id}/${req.files[0].filename}`;
+  const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
 
   fs.renameSync(oldPath, newPathStr, function (err) {
     if (err) throw err;
@@ -146,7 +147,7 @@ exports.posts_post = (req, res, next) => {
   const newPost = new Post({
     post: post,
     user: {
-      id: user.id,
+      id: user._id,
       userName: user.userName,
       avatar: {
         id: user.avatar.id,
@@ -165,9 +166,11 @@ exports.posts_post = (req, res, next) => {
     location: location,
     comments: [],
   }).save((err, newPost) => {
-    console.log(newPost.image.contentType);
-    if (err) return err;
+    console.log('saving');
+    if (err) return console.log(err);
     else {
+      console.log('saved');
+
       return res.json({ newPost });
     }
   });
@@ -192,22 +195,8 @@ exports.post_delete = (req, res, next) => {
 };
 
 exports.post_post = (req, res, next) => {
-  // DONE
   let updateFields = {};
-  /*   let user = {
-    avatar: {
-      id: '96aeffbdfeafb48bbfbc8cea',
-      url: 'https://instaapi-production.up.railway.app/uploads/fe0db393eeaeaa8530a38e1d/avatar.jpg',
-    },
-    _id: 'fe0db393eeaeaa8530a38e1d',
-    firstName: 'Osborne',
-    lastName: 'Crooks',
-    email: 'Lavonne_Bradtke@yahoo.com',
-    userName: 'Rhea67',
-    password: 'XECx6ylxRz4ylw5',
-    isAdmin: false,
-    __v: 0,
-  }; */
+
   if (req.body.like) {
     console.log(req.body);
     updateFields = { like: Number(req.body.like) };
@@ -226,7 +215,7 @@ exports.post_post = (req, res, next) => {
     const comment = new Comment({
       comment: req.body.comment,
       user: {
-        id: user.id,
+        id: user._id,
         userName: user.userName,
         avatar: {
           id: user.avatar.id,
