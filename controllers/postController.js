@@ -104,23 +104,28 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  console.log(req.files);
   let user = JSON.parse(req.body.user);
   let location = req.body.location;
   let alt = req.body.alt;
   let post = req.body.post;
   const filter = req.body.filter;
-
+  console.log(req.body);
   let modifiedAlt = alt;
+  let modifiedPost = post;
   let locationStr = location;
+  let locationDisplayed = location;
 
   if (locationStr == 'null') {
     locationStr = 'an unknown location';
+    locationDisplayed = '';
   }
   if (modifiedAlt == 'null') {
     modifiedAlt = `An image by ${user.userName} taken in ${locationStr}`;
   }
-  console.log('file', req.files[0]);
+  if (modifiedPost == 'null') {
+    modifiedPost = 'I forgot to add a comment, whoops!';
+  }
+
   const newImgId = mongoose.Types.ObjectId();
   const oldPath = `${req.files[0].path}`;
   const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
@@ -142,10 +147,12 @@ exports.posts_post = (req, res, next) => {
     image.save(function (err, image) {
       if (err) console.log(err);
     });
+  } else {
+    return res.sendStatus(400);
   }
 
   const newPost = new Post({
-    post: post,
+    post: modifiedPost,
     user: {
       id: user._id,
       userName: user.userName,
@@ -163,14 +170,11 @@ exports.posts_post = (req, res, next) => {
       filter: filter,
       contentType: req.files[0].mimetype,
     },
-    location: location,
+    location: locationDisplayed,
     comments: [],
   }).save((err, newPost) => {
-    console.log('saving');
     if (err) return console.log(err);
     else {
-      console.log('saved');
-
       return res.json({ newPost });
     }
   });
@@ -198,13 +202,10 @@ exports.post_post = (req, res, next) => {
   let updateFields = {};
 
   if (req.body.like) {
-    console.log(req.body);
     updateFields = { like: Number(req.body.like) };
     Post.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
-      console.log('adding like');
       if (err) console.log(err);
       else {
-        console.log('returning like');
         return fullPost ? res.sendStatus(200) : res.sendStatus(404);
       }
     });
