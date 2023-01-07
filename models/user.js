@@ -12,6 +12,8 @@ const UserSchema = new Schema({
     id: { type: Schema.Types.ObjectId, ref: 'Image' },
     url: { type: String },
   },
+  savedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  taggedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
 });
 
 // Export model

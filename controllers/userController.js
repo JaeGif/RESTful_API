@@ -62,6 +62,26 @@ exports.user_get = (req, res, next) => {
   });
 };
 exports.user_put = (req, res, next) => {
+  let updateFields = {};
+  if (req.body.savedPost) {
+    updateFields = { $push: { savedPosts: req.body.savedPost } };
+    User.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+      if (err) console.log(err);
+      else {
+        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+      }
+    });
+  }
+  if (req.body.taggedPost) {
+    updateFields = { $push: { taggedPosts: req.body.taggedPost } };
+    User.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+      if (err) console.log(err);
+      else {
+        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+      }
+    });
+  }
+
   User.findByIdAndUpdate(
     req.params.userid,
     {
