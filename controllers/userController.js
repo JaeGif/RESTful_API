@@ -7,7 +7,7 @@ exports.users_get = (req, res, next) => {
     else {
       // respond with users list
       // filter by queries
-      const { firstname, lastname, username, isadmin } = req.query;
+      const { firstname, lastname, username, isadmin, q } = req.query;
       let results = [...users];
 
       if (firstname) {
@@ -28,6 +28,7 @@ exports.users_get = (req, res, next) => {
       if (isadmin) {
         results = results.filter((user) => user.isAdmin);
       }
+
       res.json({ users: results });
     }
   });
@@ -64,41 +65,27 @@ exports.user_get = (req, res, next) => {
 exports.user_put = (req, res, next) => {
   let updateFields = {};
   if (req.body.savedPost) {
-    updateFields = { $push: { savedPosts: req.body.savedPost } };
-    User.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+    let savedPost = JSON.parse(req.body.savedPost);
+    console.log('saving, ', savedPost);
+    updateFields = { $push: { savedPosts: savedPost } };
+    User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
+      console.log(user);
       if (err) console.log(err);
       else {
-        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+        return user ? res.sendStatus(200) : res.sendStatus(404);
       }
     });
   }
   if (req.body.taggedPost) {
-    updateFields = { $push: { taggedPosts: req.body.taggedPost } };
-    User.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+    let taggedPost = JSON.parse(req.body.taggedPost);
+    updateFields = { $push: { taggedPosts: taggedPost } };
+    User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
       if (err) console.log(err);
       else {
-        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+        return user ? res.sendStatus(200) : res.sendStatus(404);
       }
     });
   }
-
-  User.findByIdAndUpdate(
-    req.params.userid,
-    {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      userName: req.body.userName,
-      password: req.body.password, // THIS NEEDS TO BE HASHED
-      isAdmin: req.body.isAdmin,
-    },
-    (err, user) => {
-      if (err) return next(err);
-      else {
-        res.sendStatus(200);
-      }
-    }
-  );
 };
 exports.user_delete = (req, res, next) => {
   User.findByIdAndDelete(req.params.userId, function (err, user) {
