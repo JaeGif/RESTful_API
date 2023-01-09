@@ -196,7 +196,55 @@ exports.post_get = (req, res, next) => {
   Post.findById(req.params.postid, function (err, post) {
     if (err) return next(err);
     else {
-      return post ? res.json({ post }) : res.sendStatus(404);
+      let results = [post];
+      for (let i = 0; i < results.length; i++) {
+        try {
+          let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
+          let updatedFormatted = dayjs().to(dayjs(results[i].updatedAt));
+
+          let editedPost = false;
+
+          if (String(results[i].createdAt) !== String(results[i].updatedAt)) {
+            editedPost = true;
+          }
+
+          results[i] = {
+            ...results[i]._doc,
+            ...{
+              createdAt: createdFormatted,
+              updatedAt: updatedFormatted,
+              edited: editedPost,
+            },
+          };
+          for (let j = 0; j < results[i].comments.length; j++) {
+            let commentCreatedFormatted = dayjs().to(
+              dayjs(results[i].comments[j].createdAt)
+            );
+            let commentUpdatedFormatted = dayjs().to(
+              dayjs(results[i].comments[j].updatedAt)
+            );
+            let edited = false;
+
+            if (
+              String(results[i].comments[j].createdAt) !==
+              String(results[i].comments[j].updatedAt)
+            ) {
+              edited = true;
+            }
+            results[i].comments[j] = {
+              ...results[i].comments[j],
+              ...{
+                createdAt: commentCreatedFormatted,
+                updatedAt: commentUpdatedFormatted,
+                edited: edited,
+              },
+            };
+          }
+        } catch (error) {
+          console.log('error parsing post/comment dates', error);
+        }
+      }
+      return post ? res.json({ post: results[0] }) : res.sendStatus(404);
     }
   });
 };
