@@ -83,7 +83,6 @@ exports.user_put = (req, res, next) => {
     console.log('saving, ', savedPost);
     updateFields = { $push: { savedPosts: savedPost } };
     User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
-      console.log(user);
       if (err) console.log(err);
       else {
         return user ? res.sendStatus(200) : res.sendStatus(404);

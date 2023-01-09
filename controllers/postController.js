@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const Image = require('../models/image');
+const User = require('../models/user');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
@@ -8,7 +9,6 @@ const dayjs = require('dayjs');
 const async = require('async');
 const post = require('../models/post');
 const image = require('../models/image');
-const { contentType } = require('express/lib/response');
 
 dayjs.extend(relativeTime);
 /* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
@@ -109,7 +109,6 @@ exports.posts_post = (req, res, next) => {
   let alt = req.body.alt;
   let post = req.body.post;
   const filter = req.body.filter;
-  console.log(req.body);
   let modifiedAlt = alt;
   let modifiedPost = post;
   let locationStr = location;
@@ -175,6 +174,19 @@ exports.posts_post = (req, res, next) => {
   }).save((err, newPost) => {
     if (err) return console.log(err);
     else {
+      if (req.body.taggedPost) {
+        let tagged = JSON.parse(req.body.taggedPost);
+        for (let i = 0; i < tagged.length; i++) {
+          const userId = String(tagged[i].user._id);
+          let updateFields = { $push: { taggedPosts: newPost._id } };
+          User.findByIdAndUpdate(userId, updateFields, function (err, user) {
+            if (err) console.log(err);
+            else {
+              console.log('success for ', user.taggedPosts);
+            }
+          });
+        }
+      }
       return res.json({ newPost });
     }
   });
