@@ -2,12 +2,22 @@ const User = require('../models/user');
 
 exports.users_get = (req, res, next) => {
   // find all users
+  const { firstname, lastname, username, isadmin, reqLimit, skipToPage } =
+    req.query;
+  let resultsPerPage = 5;
+  if (reqLimit) {
+    resultsPerPage = Number(reqLimit);
+  }
+  let startIndex = 0;
+  if (skipToPage) {
+    startIndex = Number(skipToPage) * resultsPerPage;
+  }
+
   User.find({}).exec(function (err, users) {
     if (err) return next(err);
     else {
       // respond with users list
       // filter by queries
-      const { firstname, lastname, username, isadmin, q } = req.query;
       let results = [...users];
 
       if (firstname) {
@@ -21,6 +31,7 @@ exports.users_get = (req, res, next) => {
         );
       }
       if (username) {
+        console.log(username);
         results = results.filter((user) =>
           user.userName.toLowerCase().includes(username.toLowerCase())
         );
@@ -28,7 +39,10 @@ exports.users_get = (req, res, next) => {
       if (isadmin) {
         results = results.filter((user) => user.isAdmin);
       }
-
+      if (reqLimit) {
+        results = results.slice(startIndex, resultsPerPage + startIndex);
+      }
+      console.log('This is the set', results);
       res.json({ users: results });
     }
   });
