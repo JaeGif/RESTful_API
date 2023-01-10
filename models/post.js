@@ -23,6 +23,7 @@ const PostSchema = new Schema(
       contentType: { type: String },
     },
     location: { type: String },
+    tagged: [],
     comments: [],
   },
   { timestamps: true }

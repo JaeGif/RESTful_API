@@ -113,7 +113,14 @@ exports.posts_post = (req, res, next) => {
   let modifiedPost = post;
   let locationStr = location;
   let locationDisplayed = location;
-
+  let taggedUsers = [];
+  let taggedPost = JSON.parse(req.body.taggedPost);
+  console.log(taggedPost);
+  if (taggedPost.length) {
+    for (let i = 0; i < taggedPost.length; i++) {
+      taggedUsers.concat(taggedPost[i].user);
+    }
+  }
   if (locationStr == 'null') {
     locationStr = 'an unknown location';
     locationDisplayed = '';
@@ -149,7 +156,7 @@ exports.posts_post = (req, res, next) => {
   } else {
     return res.sendStatus(400);
   }
-
+  console.log('pass to post');
   const newPost = new Post({
     post: modifiedPost,
     user: {
@@ -170,19 +177,21 @@ exports.posts_post = (req, res, next) => {
       contentType: req.files[0].mimetype,
     },
     location: locationDisplayed,
+    tagged: taggedUsers,
     comments: [],
   }).save((err, newPost) => {
     if (err) return console.log(err);
     else {
-      if (req.body.taggedPost) {
-        let tagged = JSON.parse(req.body.taggedPost);
+      console.log('full post', newPost);
+      if (taggedPost.length) {
+        let tagged = taggedPost;
         for (let i = 0; i < tagged.length; i++) {
           const userId = String(tagged[i].user._id);
           let updateFields = { $push: { taggedPosts: newPost._id } };
           User.findByIdAndUpdate(userId, updateFields, function (err, user) {
             if (err) console.log(err);
             else {
-              console.log('success for ', user.taggedPosts);
+              console.log('success for ', user._id);
             }
           });
         }
@@ -244,6 +253,7 @@ exports.post_get = (req, res, next) => {
           console.log('error parsing post/comment dates', error);
         }
       }
+      console.log(results[0]);
       return post ? res.json({ post: results[0] }) : res.sendStatus(404);
     }
   });
