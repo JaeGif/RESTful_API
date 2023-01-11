@@ -117,9 +117,8 @@ exports.posts_post = (req, res, next) => {
   let taggedPost = JSON.parse(req.body.taggedPost);
   console.log(taggedPost);
   if (taggedPost.length) {
-    for (let i = 0; i < taggedPost.length; i++) {
-      taggedUsers.concat(taggedPost[i].user);
-    }
+    taggedUsers = taggedPost;
+    console.log('taggedUsers', taggedUsers);
   }
   if (locationStr == 'null') {
     locationStr = 'an unknown location';
@@ -179,6 +178,7 @@ exports.posts_post = (req, res, next) => {
     location: locationDisplayed,
     tagged: taggedUsers,
     comments: [],
+    _id: mongoose.Types.ObjectId(),
   }).save((err, newPost) => {
     if (err) return console.log(err);
     else {
