@@ -42,7 +42,11 @@ exports.posts_get = (req, res, next) => {
         }
         if (userid) {
           // takes uID string
-          results = results.filter((post) => post.user?.toString() === userid);
+
+          results = results.filter((post) => {
+            post.user.id.toString() == userid;
+          });
+          console.log(results);
         }
         if (published) {
           // takes bool
