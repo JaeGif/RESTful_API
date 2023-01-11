@@ -42,17 +42,14 @@ exports.posts_get = (req, res, next) => {
         }
         if (userid) {
           // takes uID string
-
-          results = results.filter((post) => {
-            post.user.id.toString() == userid;
-          });
-          console.log(results);
+          results = results.filter(
+            (post) => post.user.id.toString() === userid
+          );
         }
         if (published) {
           // takes bool
           results = results.filter((post) => post.published === published);
         }
-
         // Convert DateTime.
 
         for (let i = 0; i < results.length; i++) {
@@ -119,10 +116,8 @@ exports.posts_post = (req, res, next) => {
   let locationDisplayed = location;
   let taggedUsers = [];
   let taggedPost = JSON.parse(req.body.taggedPost);
-  console.log(taggedPost);
   if (taggedPost.length) {
     taggedUsers = taggedPost;
-    console.log('taggedUsers', taggedUsers);
   }
   if (locationStr == 'null') {
     locationStr = 'an unknown location';
@@ -159,7 +154,6 @@ exports.posts_post = (req, res, next) => {
   } else {
     return res.sendStatus(400);
   }
-  console.log('pass to post');
   const newPost = new Post({
     post: modifiedPost,
     user: {
@@ -186,7 +180,6 @@ exports.posts_post = (req, res, next) => {
   }).save((err, newPost) => {
     if (err) return console.log(err);
     else {
-      console.log('full post', newPost);
       if (taggedPost.length) {
         let tagged = taggedPost;
         for (let i = 0; i < tagged.length; i++) {
@@ -195,7 +188,6 @@ exports.posts_post = (req, res, next) => {
           User.findByIdAndUpdate(userId, updateFields, function (err, user) {
             if (err) console.log(err);
             else {
-              console.log('success for ', user._id);
             }
           });
         }
@@ -257,7 +249,6 @@ exports.post_get = (req, res, next) => {
           console.log('error parsing post/comment dates', error);
         }
       }
-      console.log(results[0]);
       return post ? res.json({ post: results[0] }) : res.sendStatus(404);
     }
   });
