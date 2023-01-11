@@ -14,6 +14,7 @@ const UserSchema = new Schema({
   },
   savedPosts: [],
   taggedPosts: [],
+  notifications: [],
 });
 
 // Export model

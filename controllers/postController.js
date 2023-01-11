@@ -267,12 +267,29 @@ exports.post_post = (req, res, next) => {
   let updateFields = {};
 
   if (req.body.like) {
-    updateFields = { like: Number(req.body.like) };
-    Post.findByIdAndUpdate(req.params.postid, updateFields, (err, fullPost) => {
+    const likedBy = JSON.parse(req.body.like);
+    Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
       else {
-        return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+        updateFields = { $push: { like: likedBy } };
+        for (let i = 0; i < post.like.length; i++) {
+          if (post.like[i]._id === likedBy._id) {
+            updateFields = {
+              $pull: { like: { _id: likedBy._id } },
+            };
+          }
+        }
       }
+      Post.findByIdAndUpdate(
+        req.params.postid,
+        updateFields,
+        (err, fullPost) => {
+          if (err) console.log(err);
+          else {
+            return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+          }
+        }
+      );
     });
   }
   if (req.body.comment) {

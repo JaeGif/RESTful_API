@@ -67,7 +67,6 @@ exports.users_post = (req, res, next) => {
     });
   }
 };
-
 exports.user_get = (req, res, next) => {
   User.findById(req.params.userid, function (err, user) {
     if (err) return next(err);

@@ -13,7 +13,7 @@ const PostSchema = new Schema(
         url: { type: String },
       },
     },
-    like: { type: Number },
+    like: [],
     published: { type: Boolean, required: true },
     image: {
       id: { type: Schema.Types.ObjectId, ref: 'Image' },
