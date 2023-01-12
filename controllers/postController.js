@@ -305,38 +305,37 @@ exports.post_post = (req, res, next) => {
                     // if the notification is already present, DO NOT SEND
                     if (
                       user.notifications[i].type === 'post/like' &&
+                      user.notifications[i]._id.toString() ===
+                        fullPost._id.toString() &&
                       user.notifications[i].user._id.toString() === likedBy._id
                     ) {
                       console.log('this notification already exists');
                       return user ? res.sendStatus(200) : res.sendStatus(404);
-                    } else {
-                      // send notification to correct user
-                      User.findByIdAndUpdate(
-                        user._id,
-                        {
-                          $push: {
-                            notifications: {
-                              type: 'post/like',
-                              _id: req.params.postid,
-                              user: {
-                                _id: likedBy._id,
-                                userName: likedBy.userName,
-                              },
-                            },
-                          },
-                        },
-                        function (err, user) {
-                          if (err) console.log(err);
-                          else {
-                            console.log('new notification');
-                            return user
-                              ? res.sendStatus(200)
-                              : res.sendStatus(404);
-                          }
-                        }
-                      );
                     }
                   }
+                  // send notification to correct user
+                  User.findByIdAndUpdate(
+                    user._id,
+                    {
+                      $push: {
+                        notifications: {
+                          type: 'post/like',
+                          _id: req.params.postid,
+                          user: {
+                            _id: likedBy._id,
+                            userName: likedBy.userName,
+                          },
+                        },
+                      },
+                    },
+                    function (err, user) {
+                      if (err) console.log(err);
+                      else {
+                        console.log('new notification');
+                        return user ? res.sendStatus(200) : res.sendStatus(404);
+                      }
+                    }
+                  );
                 } else {
                   // send notification to correct user
                   User.findByIdAndUpdate(
