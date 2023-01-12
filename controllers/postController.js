@@ -176,6 +176,7 @@ exports.posts_post = (req, res, next) => {
     location: locationDisplayed,
     tagged: taggedUsers,
     comments: [],
+    like: [],
     _id: mongoose.Types.ObjectId(),
   }).save((err, newPost) => {
     if (err) return console.log(err);
@@ -268,6 +269,9 @@ exports.post_post = (req, res, next) => {
 
   if (req.body.like) {
     const likedBy = JSON.parse(req.body.like);
+    // find individual post to check for likes
+    console.log('recieved like');
+
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
       else {
@@ -280,16 +284,90 @@ exports.post_post = (req, res, next) => {
           }
         }
       }
+      // find individual post to appropriately update likes
       Post.findByIdAndUpdate(
         req.params.postid,
         updateFields,
         (err, fullPost) => {
           if (err) console.log(err);
           else {
-            return fullPost ? res.sendStatus(200) : res.sendStatus(404);
+            console.log('found post');
+
+            User.findById(fullPost.user.id, function (err, user) {
+              if (err) console.log(err);
+              else {
+                console.log('found post author');
+                console.log(user.notifications);
+
+                if (user.notifications.length !== 0) {
+                  for (let i = 0; i < user.notifications.length; i++) {
+                    console.log('entering loop');
+                    // if the notification is already present, DO NOT SEND
+                    if (
+                      user.notifications[i].type === 'post/like' &&
+                      user.notifications[i].user._id.toString() === likedBy._id
+                    ) {
+                      console.log('this notification already exists');
+                      return user ? res.sendStatus(200) : res.sendStatus(404);
+                    } else {
+                      // send notification to correct user
+                      User.findByIdAndUpdate(
+                        user._id,
+                        {
+                          $push: {
+                            notifications: {
+                              type: 'post/like',
+                              _id: req.params.postid,
+                              user: {
+                                _id: likedBy._id,
+                                userName: likedBy.userName,
+                              },
+                            },
+                          },
+                        },
+                        function (err, user) {
+                          if (err) console.log(err);
+                          else {
+                            console.log('new notification');
+                            return user
+                              ? res.sendStatus(200)
+                              : res.sendStatus(404);
+                          }
+                        }
+                      );
+                    }
+                  }
+                } else {
+                  // send notification to correct user
+                  User.findByIdAndUpdate(
+                    user._id,
+                    {
+                      $push: {
+                        notifications: {
+                          type: 'post/like',
+                          _id: req.params.postid,
+                          user: {
+                            _id: likedBy._id,
+                            userName: likedBy.userName,
+                          },
+                        },
+                      },
+                    },
+                    function (err, user) {
+                      if (err) console.log(err);
+                      else {
+                        console.log('new notification');
+                        return user ? res.sendStatus(200) : res.sendStatus(404);
+                      }
+                    }
+                  );
+                }
+              }
+            });
           }
         }
       );
+      // send like notification
     });
   }
   if (req.body.comment) {

@@ -14,7 +14,16 @@ const UserSchema = new Schema({
   },
   savedPosts: [],
   taggedPosts: [],
-  notifications: [],
+  notifications: [
+    {
+      type: { type: String },
+      _id: { type: Schema.Types.ObjectId },
+      user: {
+        _id: { type: Schema.Types.ObjectId, ref: 'User' },
+        userName: { type: String },
+      },
+    },
+  ],
 });
 
 // Export model
