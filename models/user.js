@@ -8,10 +8,7 @@ const UserSchema = new Schema({
   userName: { type: String, required: true, minLength: 4 },
   password: { type: String, required: true, minLength: 6 },
   isAdmin: { type: Boolean },
-  avatar: {
-    id: { type: Schema.Types.ObjectId, ref: 'Image' },
-    url: { type: String },
-  },
+
   savedPosts: [],
   taggedPosts: [],
   notifications: [
@@ -19,6 +16,10 @@ const UserSchema = new Schema({
       type: { type: String },
       _id: { type: Schema.Types.ObjectId },
       user: {
+        avatar: {
+          id: { type: Schema.Types.ObjectId, ref: 'Image' },
+          url: { type: String },
+        },
         _id: { type: Schema.Types.ObjectId, ref: 'User' },
         userName: { type: String },
       },

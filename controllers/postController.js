@@ -271,6 +271,7 @@ exports.post_post = (req, res, next) => {
     const likedBy = JSON.parse(req.body.like);
     // find individual post to check for likes
     console.log('recieved like');
+    console.log(likedBy);
 
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
@@ -322,6 +323,10 @@ exports.post_post = (req, res, next) => {
                           type: 'post/like',
                           _id: req.params.postid,
                           user: {
+                            avatar: {
+                              id: likedBy.avatar._id,
+                              url: likedBy.avatar.url,
+                            },
                             _id: likedBy._id,
                             userName: likedBy.userName,
                           },
@@ -348,6 +353,10 @@ exports.post_post = (req, res, next) => {
                           user: {
                             _id: likedBy._id,
                             userName: likedBy.userName,
+                            avatar: {
+                              _id: likedBy.avatar._id,
+                              url: likedBy.avatar.url,
+                            },
                           },
                         },
                       },
