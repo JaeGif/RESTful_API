@@ -47,7 +47,6 @@ exports.users_get = (req, res, next) => {
         );
       }
       if (firstname && lastname) {
-        console.log('first last search');
         results = results.filter(
           (user) =>
             // check first and last names for queried fields
@@ -56,10 +55,6 @@ exports.users_get = (req, res, next) => {
         );
       }
       if (username) {
-        console.log('pass user');
-        console.log(username);
-        console.log(q);
-
         results = results.filter((user) =>
           user.userName.toLowerCase().includes(username.toLowerCase())
         );
@@ -67,13 +62,11 @@ exports.users_get = (req, res, next) => {
         // search for user real name is username fails
         if (q && !results.length) {
           // check for firstname first
-          console.log('pass first');
           // needs to check the whole array again because results is empty
           results = [...users].filter((user) =>
             user.firstName.toLowerCase().includes(q.toLowerCase())
           );
           if (!results.length) {
-            console.log('pass last');
             // check for last name after
             results = [...users].filter((user) =>
               user.lastName.toLowerCase().includes(q.toLowerCase())
@@ -88,7 +81,6 @@ exports.users_get = (req, res, next) => {
       if (reqLimit) {
         results = results.slice(startIndex, resultsPerPage + startIndex);
       }
-      console.log('This is the set', results);
       res.json({ users: results });
     }
   });
@@ -123,9 +115,48 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
+  if (req.body.searched) {
+    const searchedUserId = req.body.searched;
+    updateFields = { $push: { recentSearches: searchedUserId } };
+    User.findById(req.params.userid, function (err, user) {
+      if (err) console.log(err);
+      else {
+        for (let i = 0; i < user.recentSearches.length; i++) {
+          // if the search is already logged, just return with no change
+          if (user.recentSearches[i].toString() === searchedUserId) {
+            console.log('this is a duplicate');
+            console.log('recents,', user.recentSearches.length);
+
+            return user ? res.sendStatus(200) : res.sendStatus(404);
+          }
+        }
+        if (user.recentSearches.length >= 10) {
+          // if the search is NOT logged, check length to see if it needs to be popped.
+          console.log('removing last element');
+          const removeLastElement = { $pop: { recentSearches: 1 } };
+          console.log('recents,', user.recentSearches);
+          User.findByIdAndUpdate(
+            req.params.userid,
+            removeLastElement,
+            function (err, user) {
+              if (err) throw err;
+              else {
+                console.log('popped');
+              }
+            }
+          );
+        }
+        User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
+          if (err) console.log(err);
+          else {
+            return user ? res.sendStatus(200) : res.sendStatus(404);
+          }
+        });
+      }
+    });
+  }
   if (req.body.savedPost) {
     let savedPost = JSON.parse(req.body.savedPost);
-    console.log('saving, ', savedPost);
     updateFields = { $push: { savedPosts: savedPost } };
     User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
       if (err) console.log(err);
@@ -145,6 +176,7 @@ exports.user_put = (req, res, next) => {
     });
   }
 };
+
 exports.user_delete = (req, res, next) => {
   User.findByIdAndDelete(req.params.userId, function (err, user) {
     if (err) return next(err);

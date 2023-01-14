@@ -25,6 +25,7 @@ const UserSchema = new Schema({
       },
     },
   ],
+  recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 // Export model
