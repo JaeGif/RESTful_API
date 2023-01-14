@@ -115,6 +115,17 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
+  if (req.params.clear) {
+    updateFields = { $unset: { recentSearches: [] } };
+    console.log('fields unsetting');
+    User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
+      if (err) console.log(err);
+      else {
+        console.log('fields successfully unset');
+        return user ? res.sendStatus(200) : res.sendStatus(404);
+      }
+    });
+  }
   if (req.body.searched) {
     const searchedUserId = req.body.searched;
     updateFields = { $push: { recentSearches: searchedUserId } };

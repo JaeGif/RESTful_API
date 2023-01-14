@@ -164,7 +164,6 @@ exports.posts_post = (req, res, next) => {
         url: user.avatar.url,
       },
     },
-    like: 0,
     published: true,
     image: {
       id: newImgId.toString(),
@@ -329,6 +328,13 @@ exports.post_post = (req, res, next) => {
                             },
                             _id: likedBy._id,
                             userName: likedBy.userName,
+                            post: {
+                              _id: likedBy.post._id,
+                              thumbnail: {
+                                url: likedBy.post.thumbnail.url,
+                                alt: likedBy.post.thumbnail.alt,
+                              },
+                            },
                           },
                         },
                       },
@@ -336,6 +342,7 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
+                        console.log(user.notifications);
                         console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
