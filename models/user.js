@@ -13,15 +13,22 @@ const UserSchema = new Schema({
   taggedPosts: [],
   notifications: [
     {
-      type: { type: String },
-      _id: { type: Schema.Types.ObjectId },
+      type: { type: String, required: true },
+      _id: { type: Schema.Types.ObjectId, required: true },
       user: {
         avatar: {
           id: { type: Schema.Types.ObjectId, ref: 'Image' },
           url: { type: String },
         },
-        _id: { type: Schema.Types.ObjectId, ref: 'User' },
-        userName: { type: String },
+        _id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+        userName: { type: String, required: true },
+      },
+      post: {
+        _id: { type: Schema.Types.ObjectId, ref: 'Post' },
+        thumbnail: {
+          url: { type: String },
+          alt: { type: String },
+        },
       },
     },
   ],

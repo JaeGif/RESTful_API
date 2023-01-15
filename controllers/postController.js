@@ -328,12 +328,12 @@ exports.post_post = (req, res, next) => {
                             },
                             _id: likedBy._id,
                             userName: likedBy.userName,
-                            post: {
-                              _id: likedBy.post._id,
-                              thumbnail: {
-                                url: likedBy.post.thumbnail.url,
-                                alt: likedBy.post.thumbnail.alt,
-                              },
+                          },
+                          post: {
+                            _id: likedBy.post._id,
+                            thumbnail: {
+                              url: likedBy.post.thumbnail.url,
+                              alt: likedBy.post.thumbnail.alt,
                             },
                           },
                         },
@@ -342,14 +342,17 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
-                        console.log(user.notifications);
+                        console.log(
+                          'new user notif array 1:',
+                          user.notifications
+                        );
                         console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
                     }
                   );
                 } else {
-                  // send notification to correct user
+                  // send notification to correct user if there are NO notifications
                   User.findByIdAndUpdate(
                     user._id,
                     {
@@ -365,12 +368,23 @@ exports.post_post = (req, res, next) => {
                               url: likedBy.avatar.url,
                             },
                           },
+                          post: {
+                            _id: likedBy.post._id,
+                            thumbnail: {
+                              url: likedBy.post.thumbnail.url,
+                              alt: likedBy.post.thumbnail.alt,
+                            },
+                          },
                         },
                       },
                     },
                     function (err, user) {
                       if (err) console.log(err);
                       else {
+                        console.log(
+                          'new user notif array 2:',
+                          user.notifications
+                        );
                         console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
