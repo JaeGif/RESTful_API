@@ -115,8 +115,10 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
-  if (req.params.clear) {
-    updateFields = { $unset: { recentSearches: [] } };
+  console.log('put on user');
+  console.log('remove', req.body.removeRecent);
+  if (req.body.removeRecent) {
+    updateFields = { $pull: { recentSearches: req.body.removeRecent } };
     console.log('fields unsetting');
     User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
       if (err) console.log(err);
