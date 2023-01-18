@@ -30,6 +30,7 @@ const UserSchema = new Schema({
           alt: { type: String },
         },
       },
+      seen: { type: Boolean },
     },
   ],
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],

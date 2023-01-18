@@ -116,7 +116,37 @@ exports.user_get = (req, res, next) => {
 exports.user_put = (req, res, next) => {
   let updateFields = {};
   console.log('put on user');
-  console.log('remove', req.body.removeRecent);
+  if (req.body.seen) {
+    User.findById(req.params.userid, function (err, user) {
+      if (err) console.log(err);
+      else {
+        console.log('seen');
+        console.log(user.notifications.length);
+        for (let i = 0; i < user.notifications.length; i++) {
+          console.log('seen looping');
+
+          User.findByIdAndUpdate(
+            req.params.userid,
+            {
+              $set: {
+                'notifications.$[].seen': true,
+              },
+            },
+            function (err, user) {
+              if (err) console.log(err);
+              else {
+                console.log('sending seen');
+              }
+            }
+          );
+        }
+        console.log('sending done');
+        return user
+          ? res.json({ notifications: user.notifications })
+          : res.sendStatus(404);
+      }
+    });
+  }
   if (req.body.removeRecent) {
     updateFields = { $pull: { recentSearches: req.body.removeRecent } };
     console.log('fields unsetting');
