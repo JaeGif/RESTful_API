@@ -27,17 +27,19 @@ exports.posts_get = (req, res, next) => {
   const skipBy = returnLimit * parseInt(page);
 
   if (u) {
+    console.log(u);
     User.findById(u, function (err, user) {
       if (err) console.log(err);
       else {
         console.log('found user');
-        Post.find(
-          { 'user._id': { $in: user.following } },
-          function (err, posts) {
+        Post.find({ 'user._id': { $in: user.following } })
+          .limit(returnLimit)
+          .skip(skipBy)
+          .sort('-createdAt')
+          .exec(function (err, posts) {
             if (err) console.log(err);
             else {
-              console.log(posts);
-              console.log('found post');
+              console.log('found post for', user.following);
 
               // process for filtering
               let results = [...posts];
@@ -116,13 +118,9 @@ exports.posts_get = (req, res, next) => {
               }
               res.json({ posts: results });
             }
-          }
-        );
+          });
       }
     });
-    console.log('user:', u);
-    /*     Post.find({ _id: { $in: following } });
-     */
   } else {
     Post.find({})
       .limit(returnLimit)

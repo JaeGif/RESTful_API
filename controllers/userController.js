@@ -118,7 +118,6 @@ exports.user_put = (req, res, next) => {
   if (req.body.follow) {
     console.log('adding');
     console.log(req.body.follow);
-
     let followObj = JSON.parse(req.body.follow);
 
     switch (followObj.type) {
@@ -137,14 +136,14 @@ exports.user_put = (req, res, next) => {
       default:
         return res.sendStatus(401);
     }
-
+    console.log(followObj.type);
     User.findByIdAndUpdate(
       req.params.userid,
       updateFields,
       function (err, user) {
         if (err) console.log(err);
         else {
-          console.log(`follower/ing added or removed idk`);
+          console.log(user);
           return user ? res.sendStatus(200) : res.sendStatus(404);
         }
       }
