@@ -115,16 +115,47 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
-  console.log('put on user');
+  if (req.body.follow) {
+    console.log('adding');
+    console.log(req.body.follow);
+
+    let followObj = JSON.parse(req.body.follow);
+
+    switch (followObj.type) {
+      case 'follower/add':
+        updateFields = { $push: { followers: followObj._id } };
+        break;
+      case 'follower/remove':
+        updateFields = { $pull: { followers: followObj._id } };
+        break;
+      case 'following/add':
+        updateFields = { $push: { following: followObj._id } };
+        break;
+      case 'following/remove':
+        updateFields = { $pull: { following: followObj._id } };
+        break;
+      default:
+        return res.sendStatus(401);
+    }
+
+    User.findByIdAndUpdate(
+      req.params.userid,
+      updateFields,
+      function (err, user) {
+        if (err) console.log(err);
+        else {
+          console.log(`follower/ing added or removed idk`);
+          return user ? res.sendStatus(200) : res.sendStatus(404);
+        }
+      }
+    );
+  }
   if (req.body.seen) {
     User.findById(req.params.userid, function (err, user) {
       if (err) console.log(err);
       else {
-        console.log('seen');
         console.log(user.notifications.length);
         for (let i = 0; i < user.notifications.length; i++) {
-          console.log('seen looping');
-
           User.findByIdAndUpdate(
             req.params.userid,
             {
@@ -134,13 +165,9 @@ exports.user_put = (req, res, next) => {
             },
             function (err, user) {
               if (err) console.log(err);
-              else {
-                console.log('sending seen');
-              }
             }
           );
         }
-        console.log('sending done');
         return user
           ? res.json({ notifications: user.notifications })
           : res.sendStatus(404);

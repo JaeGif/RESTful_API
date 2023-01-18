@@ -8,7 +8,8 @@ const UserSchema = new Schema({
   userName: { type: String, required: true, minLength: 4 },
   password: { type: String, required: true, minLength: 6 },
   isAdmin: { type: Boolean },
-
+  following: [{ type: Schema.Types.ObjectId, ref: 'User' }], // only display posts from follows users using user filter on post retrieval. This is very unperformant at scale. Possibly rethink for bigger data.
+  followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   savedPosts: [],
   taggedPosts: [],
   notifications: [

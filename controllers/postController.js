@@ -16,7 +16,7 @@ dayjs.extend(relativeTime);
 .sort( '-createdOn' ) */
 
 exports.posts_get = (req, res, next) => {
-  let { title, userid, published, page, returnLimit } = req.query;
+  let { title, userid, published, page, returnLimit, u } = req.query;
   // defaults for paginating
   if (typeof returnLimit === 'undefined') {
     returnLimit = 10;
@@ -26,82 +26,183 @@ exports.posts_get = (req, res, next) => {
   }
   const skipBy = returnLimit * parseInt(page);
 
-  Post.find({})
-    .limit(returnLimit)
-    .skip(skipBy)
-    .sort('-createdAt')
-    .exec(function (err, posts) {
-      if (err) return next(err);
+  if (u) {
+    User.findById(u, function (err, user) {
+      if (err) console.log(err);
       else {
-        // process for filtering
-        let results = [...posts];
-        if (title) {
-          results = results.filter((post) =>
-            post.title.toLowerCase().includes(title.toLowerCase())
-          );
-        }
-        if (userid) {
-          // takes uID string
-          results = results.filter(
-            (post) => post.user.id.toString() === userid
-          );
-        }
-        if (published) {
-          // takes bool
-          results = results.filter((post) => post.published === published);
-        }
-        // Convert DateTime.
+        console.log('found user');
+        Post.find(
+          { 'user._id': { $in: user.following } },
+          function (err, posts) {
+            if (err) console.log(err);
+            else {
+              console.log(posts);
+              console.log('found post');
 
-        for (let i = 0; i < results.length; i++) {
-          try {
-            let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
-            let updatedFormatted = dayjs().to(dayjs(results[i].updatedAt));
-
-            let editedPost = false;
-
-            if (String(results[i].createdAt) !== String(results[i].updatedAt)) {
-              editedPost = true;
-            }
-
-            results[i] = {
-              ...results[i]._doc,
-              ...{
-                createdAt: createdFormatted,
-                updatedAt: updatedFormatted,
-                edited: editedPost,
-              },
-            };
-            for (let j = 0; j < results[i].comments.length; j++) {
-              let commentCreatedFormatted = dayjs().to(
-                dayjs(results[i].comments[j].createdAt)
-              );
-              let commentUpdatedFormatted = dayjs().to(
-                dayjs(results[i].comments[j].updatedAt)
-              );
-              let edited = false;
-
-              if (
-                String(results[i].comments[j].createdAt) !==
-                String(results[i].comments[j].updatedAt)
-              ) {
-                edited = true;
+              // process for filtering
+              let results = [...posts];
+              if (title) {
+                results = results.filter((post) =>
+                  post.title.toLowerCase().includes(title.toLowerCase())
+                );
               }
-              results[i].comments[j] = {
-                ...results[i].comments[j],
-                ...{
-                  createdAt: commentCreatedFormatted,
-                  updatedAt: commentUpdatedFormatted,
-                  edited: edited,
-                },
-              };
+              if (userid) {
+                // takes uID string
+                results = results.filter(
+                  (post) => post.user.id.toString() === userid
+                );
+              }
+              if (published) {
+                // takes bool
+                results = results.filter(
+                  (post) => post.published === published
+                );
+              }
+              // Convert DateTime.
+
+              for (let i = 0; i < results.length; i++) {
+                try {
+                  let createdFormatted = dayjs().to(
+                    dayjs(results[i].createdAt)
+                  );
+                  let updatedFormatted = dayjs().to(
+                    dayjs(results[i].updatedAt)
+                  );
+
+                  let editedPost = false;
+
+                  if (
+                    String(results[i].createdAt) !==
+                    String(results[i].updatedAt)
+                  ) {
+                    editedPost = true;
+                  }
+
+                  results[i] = {
+                    ...results[i]._doc,
+                    ...{
+                      createdAt: createdFormatted,
+                      updatedAt: updatedFormatted,
+                      edited: editedPost,
+                    },
+                  };
+                  for (let j = 0; j < results[i].comments.length; j++) {
+                    let commentCreatedFormatted = dayjs().to(
+                      dayjs(results[i].comments[j].createdAt)
+                    );
+                    let commentUpdatedFormatted = dayjs().to(
+                      dayjs(results[i].comments[j].updatedAt)
+                    );
+                    let edited = false;
+
+                    if (
+                      String(results[i].comments[j].createdAt) !==
+                      String(results[i].comments[j].updatedAt)
+                    ) {
+                      edited = true;
+                    }
+                    results[i].comments[j] = {
+                      ...results[i].comments[j],
+                      ...{
+                        createdAt: commentCreatedFormatted,
+                        updatedAt: commentUpdatedFormatted,
+                        edited: edited,
+                      },
+                    };
+                  }
+                } catch (error) {
+                  console.log('error parsing post/comment dates', error);
+                }
+              }
+              res.json({ posts: results });
             }
-          } catch (error) {
-            console.log('error parsing post/comment dates', error);
           }
-        }
-        res.json({ posts: results });
+        );
       }
     });
+    console.log('user:', u);
+    /*     Post.find({ _id: { $in: following } });
+     */
+  } else {
+    Post.find({})
+      .limit(returnLimit)
+      .skip(skipBy)
+      .sort('-createdAt')
+      .exec(function (err, posts) {
+        if (err) return next(err);
+        else {
+          // process for filtering
+          let results = [...posts];
+          if (title) {
+            results = results.filter((post) =>
+              post.title.toLowerCase().includes(title.toLowerCase())
+            );
+          }
+          if (userid) {
+            // takes uID string
+            results = results.filter(
+              (post) => post.user.id.toString() === userid
+            );
+          }
+          if (published) {
+            // takes bool
+            results = results.filter((post) => post.published === published);
+          }
+          // Convert DateTime.
+
+          for (let i = 0; i < results.length; i++) {
+            try {
+              let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
+              let updatedFormatted = dayjs().to(dayjs(results[i].updatedAt));
+
+              let editedPost = false;
+
+              if (
+                String(results[i].createdAt) !== String(results[i].updatedAt)
+              ) {
+                editedPost = true;
+              }
+
+              results[i] = {
+                ...results[i]._doc,
+                ...{
+                  createdAt: createdFormatted,
+                  updatedAt: updatedFormatted,
+                  edited: editedPost,
+                },
+              };
+              for (let j = 0; j < results[i].comments.length; j++) {
+                let commentCreatedFormatted = dayjs().to(
+                  dayjs(results[i].comments[j].createdAt)
+                );
+                let commentUpdatedFormatted = dayjs().to(
+                  dayjs(results[i].comments[j].updatedAt)
+                );
+                let edited = false;
+
+                if (
+                  String(results[i].comments[j].createdAt) !==
+                  String(results[i].comments[j].updatedAt)
+                ) {
+                  edited = true;
+                }
+                results[i].comments[j] = {
+                  ...results[i].comments[j],
+                  ...{
+                    createdAt: commentCreatedFormatted,
+                    updatedAt: commentUpdatedFormatted,
+                    edited: edited,
+                  },
+                };
+              }
+            } catch (error) {
+              console.log('error parsing post/comment dates', error);
+            }
+          }
+          res.json({ posts: results });
+        }
+      });
+  }
 };
 
 exports.posts_post = (req, res, next) => {
