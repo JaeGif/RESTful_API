@@ -18,6 +18,8 @@ mongoose
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'mongo connection error'));
+let doneFollower = false;
+let doneFollowing = false;
 
 User.updateMany(
   {},
@@ -25,8 +27,29 @@ User.updateMany(
   function (err, post) {
     if (err) console.log(err);
     else {
-      console.log('done');
-      db.close();
+      console.log('finished followers push');
+      doneFollower = true;
     }
   }
 );
+
+User.find({}).exec(function (err, users) {
+  if (err) console.log(err);
+  else {
+    for (let i = 0; i < users.length; i++) {
+      User.findByIdAndUpdate(
+        '823fce52b33a845ef7554dd9',
+        {
+          $push: { following: users[i]._id },
+        },
+        function (err, user) {
+          if (err) console.log(err);
+          else {
+            doneFollowing = true;
+          }
+        }
+      );
+    }
+    console.log('finished following pushes');
+  }
+});

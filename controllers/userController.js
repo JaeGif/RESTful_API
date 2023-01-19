@@ -106,12 +106,73 @@ exports.users_post = (req, res, next) => {
   }
 };
 exports.user_get = (req, res, next) => {
-  User.findById(req.params.userid, function (err, user) {
-    if (err) return next(err);
-    else {
-      return user ? res.json({ user }) : res.sendStatus(404);
-    }
-  });
+  if (req.query.s) {
+    let results = [];
+    let count = 0;
+    const suggestedLimit = Number(req.query.s);
+    User.findById(req.params.userid, function (err, loggedUser) {
+      if (err) console.log(err);
+      else {
+        User.find({ _id: { $in: loggedUser.following } }).exec(function (
+          err,
+          users
+        ) {
+          // this block suggests users you're not friends with, but your friend is following
+          if (err) console.log(err);
+          else {
+            for (let i = 0; i < users.length; i++) {
+              for (let j = 0; j < users[i].following.length; j++) {
+                if (
+                  !loggedUser.following.includes(
+                    users[i].following[j].toString()
+                  )
+                ) {
+                  if (count < suggestedLimit) {
+                    console.log('id found, ', users[i].following[j].toString());
+                    count++;
+                    results.push({
+                      user: users[i].following[j].toString(),
+                      // type: contact / why
+                      type: 'following/follows',
+                    });
+                  } else break;
+                }
+              }
+            }
+            // if 5 still not fulfilled by the end of previous results
+            // check for followers user is not following back
+            if (count < suggestedLimit) {
+              for (let i = 0; i < loggedUser.followers; i++) {
+                for (let j = 0; j < loggedUser.following; j++) {
+                  if (
+                    loggedUser.followers[i].toString() !==
+                    loggedUser.following[j].toString()
+                  ) {
+                    count++;
+                    results.push({
+                      user: loggedUser.followers[i].toString(),
+                      type: 'user/follower',
+                    });
+                  }
+                }
+              }
+            }
+
+            return users
+              ? res.json({ suggested: results })
+              : res.sendStatus(404);
+          }
+        });
+      }
+    });
+  } else {
+    User.findById(req.params.userid, function (err, user) {
+      if (err) console.log(err);
+      else {
+        return user ? res.json({ user }) : res.sendStatus(404);
+      }
+    });
+  }
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};

@@ -32,7 +32,7 @@ exports.posts_get = (req, res, next) => {
       if (err) console.log(err);
       else {
         console.log('found user');
-        Post.find({ 'user._id': { $in: user.following } })
+        Post.find({ 'user.id': { $in: user.following } })
           .limit(returnLimit)
           .skip(skipBy)
           .sort('-createdAt')
