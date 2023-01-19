@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 
 exports.users_get = (req, res, next) => {
@@ -128,7 +129,6 @@ exports.user_get = (req, res, next) => {
                   )
                 ) {
                   if (count < suggestedLimit) {
-                    console.log('id found, ', users[i].following[j].toString());
                     count++;
                     results.push({
                       user: users[i].following[j].toString(),
@@ -142,12 +142,35 @@ exports.user_get = (req, res, next) => {
             // if 5 still not fulfilled by the end of previous results
             // check for followers user is not following back
             if (count < suggestedLimit) {
-              for (let i = 0; i < loggedUser.followers; i++) {
-                for (let j = 0; j < loggedUser.following; j++) {
+              console.log(count, suggestedLimit);
+              followerloop: for (
+                let i = 0;
+                i < loggedUser.followers.length;
+                i++
+              ) {
+                followingloop: for (
+                  let j = 0;
+                  j < loggedUser.following.length;
+                  j++
+                ) {
+                  if (results.length >= suggestedLimit) {
+                    break followerloop;
+                  }
                   if (
                     loggedUser.followers[i].toString() !==
                     loggedUser.following[j].toString()
                   ) {
+                    resultsloop: for (let k = 0; k < results.length; k++) {
+                      if (
+                        // don't add duplicates, and don't add yourself.
+                        results[k].user ===
+                          loggedUser.followers[i].toString() ||
+                        loggedUser.followers[i].toString() ===
+                          loggedUser._id.toString()
+                      ) {
+                        continue followingloop;
+                      }
+                    }
                     count++;
                     results.push({
                       user: loggedUser.followers[i].toString(),
@@ -157,7 +180,6 @@ exports.user_get = (req, res, next) => {
                 }
               }
             }
-
             return users
               ? res.json({ suggested: results })
               : res.sendStatus(404);
@@ -177,7 +199,6 @@ exports.user_get = (req, res, next) => {
 exports.user_put = (req, res, next) => {
   let updateFields = {};
   if (req.body.follow) {
-    console.log('adding');
     console.log(req.body.follow);
     let followObj = JSON.parse(req.body.follow);
 
@@ -197,14 +218,41 @@ exports.user_put = (req, res, next) => {
       default:
         return res.sendStatus(401);
     }
-    console.log(followObj.type);
     User.findByIdAndUpdate(
       req.params.userid,
       updateFields,
       function (err, user) {
         if (err) console.log(err);
         else {
-          console.log(user);
+          if (followObj.type === 'follower/add') {
+            User.findById(followObj._id, function (err, addedUser) {
+              if (err) console.log(err);
+              else {
+                console.log('added user', addedUser);
+                User.findByIdAndUpdate(
+                  user._id,
+                  {
+                    $push: {
+                      notifications: {
+                        type: 'user/follow',
+                        _id: mongoose.Types.ObjectId(),
+                        user: {
+                          avatar: {
+                            id: addedUser.avatar.id,
+                            url: addedUser.avatar.url,
+                          },
+                          _id: addedUser._id,
+                        },
+                      },
+                    },
+                  },
+                  function (err, user) {
+                    if (err) console.log(err);
+                  }
+                );
+              }
+            });
+          }
           return user ? res.sendStatus(200) : res.sendStatus(404);
         }
       }
