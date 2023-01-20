@@ -225,10 +225,12 @@ exports.user_put = (req, res, next) => {
         if (err) console.log(err);
         else {
           if (followObj.type === 'follower/add') {
+            console.log('sending');
             User.findById(followObj._id, function (err, addedUser) {
               if (err) console.log(err);
               else {
-                console.log('added user', addedUser);
+                // cast mongoose obj to JS obj first
+                addedUser = addedUser.toObject();
                 User.findByIdAndUpdate(
                   user._id,
                   {
