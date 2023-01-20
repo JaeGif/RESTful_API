@@ -148,6 +148,15 @@ exports.user_get = (req, res, next) => {
                 i < loggedUser.followers.length;
                 i++
               ) {
+                if (
+                  // if you already have this guy followed
+                  loggedUser.following.includes(
+                    loggedUser.followers[i].toString()
+                  )
+                ) {
+                  continue followerloop;
+                }
+
                 followingloop: for (
                   let j = 0;
                   j < loggedUser.following.length;
@@ -160,6 +169,12 @@ exports.user_get = (req, res, next) => {
                     loggedUser.followers[i].toString() !==
                     loggedUser.following[j].toString()
                   ) {
+                    console.log(
+                      'i',
+                      loggedUser.followers[i].toString(),
+                      'j',
+                      loggedUser.following[j].toString()
+                    );
                     resultsloop: for (let k = 0; k < results.length; k++) {
                       if (
                         // don't add duplicates, and don't add yourself.
@@ -244,6 +259,7 @@ exports.user_put = (req, res, next) => {
                             url: addedUser.avatar.url,
                           },
                           _id: addedUser._id,
+                          userName: addedUser.userName,
                         },
                       },
                     },
