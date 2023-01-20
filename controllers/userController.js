@@ -261,6 +261,7 @@ exports.user_put = (req, res, next) => {
                           _id: addedUser._id,
                           userName: addedUser.userName,
                         },
+                        seen: false,
                       },
                     },
                   },

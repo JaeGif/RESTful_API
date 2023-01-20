@@ -306,6 +306,7 @@ exports.posts_post = (req, res, next) => {
                     filter: newPost.image.filter,
                   },
                 },
+                seen: false,
               },
             },
           };
