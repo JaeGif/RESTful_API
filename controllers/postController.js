@@ -281,13 +281,36 @@ exports.posts_post = (req, res, next) => {
     else {
       if (taggedPost.length) {
         let tagged = taggedPost;
+        newPost = newPost.toObject();
         for (let i = 0; i < tagged.length; i++) {
           const userId = String(tagged[i].user._id);
-          let updateFields = { $push: { taggedPosts: newPost._id } };
+          console.log('newPost', newPost);
+          let updateFields = {
+            $push: {
+              taggedPosts: newPost._id,
+              notifications: {
+                type: 'user/tagged',
+                post: {
+                  user: {
+                    _id: newPost.user.id,
+                    userName: newPost.user.userName,
+                    avatar: {
+                      id: newPost.user.avatar.id,
+                      url: newPost.user.avatar.url,
+                    },
+                  },
+                  _id: newPost._id,
+                  thumbnail: {
+                    url: newPost.image.url,
+                    alt: newPost.image.alt,
+                    filter: newPost.image.filter,
+                  },
+                },
+              },
+            },
+          };
           User.findByIdAndUpdate(userId, updateFields, function (err, user) {
             if (err) console.log(err);
-            else {
-            }
           });
         }
       }

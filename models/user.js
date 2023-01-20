@@ -25,10 +25,19 @@ const UserSchema = new Schema({
         userName: { type: String, required: true },
       },
       post: {
+        user: {
+          _id: { type: Schema.Types.ObjectId, ref: 'User' },
+          userName: { type: String },
+          avatar: {
+            id: { type: Schema.Types.ObjectId, ref: 'Image' },
+            url: { type: String },
+          },
+        },
         _id: { type: Schema.Types.ObjectId, ref: 'Post' },
         thumbnail: {
           url: { type: String },
           alt: { type: String },
+          filter: { type: String },
         },
       },
       seen: { type: Boolean },
