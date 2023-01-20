@@ -18,7 +18,7 @@ const bodyParser = require('body-parser');
 
 require('dotenv').config();
 
-const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH Mongo_2_URL
+const mongoDb = process.env.MONGO_URL; // DO NOT PUSH Mongo_2_URL
 mongoose.set('strictQuery', true);
 mongoose
   .connect(mongoDb, { useUnifiedTopology: true, useNewUrlParser: true })
