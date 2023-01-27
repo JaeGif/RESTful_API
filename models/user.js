@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'),
+  passportLocalMongoose = require('passport-local-mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true },
-  userName: { type: String, required: true, minLength: 4 },
-  password: { type: String, required: true, minLength: 6 },
+  username: { type: String, required: true },
+  password: { type: String, minLength: 6 },
   isAdmin: { type: Boolean },
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }], // only display posts from follows users using user filter on post retrieval. This is very unperformant at scale. Possibly rethink for bigger data.
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -45,6 +46,9 @@ const UserSchema = new Schema({
   ],
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
+
+// plugin to handle passwords
+UserSchema.plugin(passportLocalMongoose);
 
 // Export model
 module.exports = mongoose.model('User', UserSchema);
