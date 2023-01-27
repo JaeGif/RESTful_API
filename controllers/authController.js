@@ -9,7 +9,7 @@ exports.login = function (req, res) {
       console.log('Error Happened In auth /token Route');
     } else {
       const payload = {
-        id: user.id,
+        id: user._id,
         expire: Date.now() + 1000 * 60 * 60 * 24 * 7, //7 days
       };
       const token = jwt.encode(payload, process.env.JWT_SECRET);
