@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String },
   username: { type: String, required: true },
   password: { type: String, minLength: 6 },
   isAdmin: { type: Boolean },
@@ -44,6 +44,7 @@ const UserSchema = new Schema({
       seen: { type: Boolean },
     },
   ],
+  avatar: { id: { type: String }, url: { type: String } },
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 

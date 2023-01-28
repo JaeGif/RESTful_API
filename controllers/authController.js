@@ -15,6 +15,7 @@ exports.login = function (req, res) {
       const token = jwt.encode(payload, process.env.JWT_SECRET);
       res.json({
         token: token,
+        user: user._id,
       });
     }
   });
@@ -39,9 +40,9 @@ exports.register = function (req, res) {
     req.body.password,
     function (err, msg) {
       if (err) {
-        res.send(err);
+        res.sendStatus(400);
       } else {
-        res.send({ message: 'Successful' });
+        res.sendStatus(200);
       }
     }
   );
