@@ -1,6 +1,8 @@
 const express = require('express'),
   User = require('../models/user'),
   jwt = require('jwt-simple');
+const { default: mongoose } = require('mongoose');
+const fs = require('fs');
 
 exports.login = function (req, res) {
   console.log('Logged In');
@@ -23,13 +25,22 @@ exports.login = function (req, res) {
 
 exports.register = function (req, res) {
   console.log(req.body);
+  const userId = mongoose.Types.ObjectId();
+
+  fs.mkdirSync(`./uploads/${userId.toString()}`, { recursive: true });
+
   User.register(
     new User({
+      _id: userId,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       username: req.body.username,
       email: req.body.email,
       isAdmin: false,
+      avatar: {
+        id: mongoose.Types.ObjectId(),
+        url: 'https://instaapi-production.up.railway.app/uploads/default/guest.png',
+      },
       following: [],
       followers: [],
       savedPosts: [],

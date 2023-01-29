@@ -57,7 +57,7 @@ exports.users_get = (req, res, next) => {
       }
       if (username) {
         results = results.filter((user) =>
-          user.userName.toLowerCase().includes(username.toLowerCase())
+          user.username.toLowerCase().includes(username.toLowerCase())
         );
         console.log(results.length);
         // search for user real name is username fails
@@ -95,7 +95,7 @@ exports.users_post = (req, res, next) => {
       firstName: req.body.firstname,
       lastName: req.body.lastname,
       email: req.body.email,
-      userName: req.body.username,
+      username: req.body.username,
       password: req.body.password,
       isAdmin: false,
     }).save((err) => {
@@ -259,7 +259,7 @@ exports.user_put = (req, res, next) => {
                             url: addedUser.avatar.url,
                           },
                           _id: addedUser._id,
-                          userName: addedUser.userName,
+                          username: addedUser.username,
                         },
                         seen: false,
                       },
