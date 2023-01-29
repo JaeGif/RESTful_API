@@ -11,9 +11,6 @@ const post = require('../models/post');
 const image = require('../models/image');
 
 dayjs.extend(relativeTime);
-/* MyModel.find( { createdOn: { $lte: request.createdOnBefore } } )
-.limit( 10 )
-.sort( '-createdOn' ) */
 
 exports.posts_get = (req, res, next) => {
   let { title, userid, published, page, returnLimit, u } = req.query;
@@ -31,16 +28,14 @@ exports.posts_get = (req, res, next) => {
     User.findById(u, function (err, user) {
       if (err) console.log(err);
       else {
-        console.log('found user');
-        Post.find({ 'user.id': { $in: user.following } })
+        const usersToDisplay = [...user.following, u];
+        Post.find({ 'user.id': { $in: usersToDisplay } })
           .limit(returnLimit)
           .skip(skipBy)
           .sort('-createdAt')
           .exec(function (err, posts) {
             if (err) console.log(err);
             else {
-              console.log('found post for', user.following);
-
               // process for filtering
               let results = [...posts];
               if (title) {
@@ -223,7 +218,7 @@ exports.posts_post = (req, res, next) => {
     locationDisplayed = '';
   }
   if (modifiedAlt == 'null') {
-    modifiedAlt = `An image by ${user.userName} taken in ${locationStr}`;
+    modifiedAlt = `An image by ${user.username} taken in ${locationStr}`;
   }
   if (modifiedPost == 'null') {
     modifiedPost = 'I forgot to add a comment, whoops!';
@@ -257,7 +252,7 @@ exports.posts_post = (req, res, next) => {
     post: modifiedPost,
     user: {
       id: user._id,
-      userName: user.userName,
+      username: user.username,
       avatar: {
         id: user.avatar.id,
         url: user.avatar.url,
@@ -293,7 +288,7 @@ exports.posts_post = (req, res, next) => {
                 post: {
                   user: {
                     _id: newPost.user.id,
-                    userName: newPost.user.userName,
+                    username: newPost.user.username,
                     avatar: {
                       id: newPost.user.avatar.id,
                       url: newPost.user.avatar.url,
@@ -450,7 +445,7 @@ exports.post_post = (req, res, next) => {
                               url: likedBy.avatar.url,
                             },
                             _id: likedBy._id,
-                            userName: likedBy.userName,
+                            username: likedBy.username,
                           },
                           post: {
                             _id: likedBy.post._id,
@@ -486,7 +481,7 @@ exports.post_post = (req, res, next) => {
                           _id: req.params.postid,
                           user: {
                             _id: likedBy._id,
-                            userName: likedBy.userName,
+                            username: likedBy.username,
                             avatar: {
                               _id: likedBy.avatar._id,
                               url: likedBy.avatar.url,
@@ -531,7 +526,7 @@ exports.post_post = (req, res, next) => {
       comment: req.body.comment,
       user: {
         id: user._id,
-        userName: user.userName,
+        username: user.username,
         avatar: {
           id: user.avatar.id,
           url: user.avatar.url,

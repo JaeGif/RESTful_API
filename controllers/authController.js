@@ -39,8 +39,9 @@ exports.register = function (req, res) {
       isAdmin: false,
       avatar: {
         id: mongoose.Types.ObjectId(),
-        url: 'https://instaapi-production.up.railway.app/uploads/default/guest.png',
+        url: 'uploads/default/guest.png',
       },
+      // user will always follow themselves
       following: [],
       followers: [],
       savedPosts: [],
