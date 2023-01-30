@@ -6,6 +6,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
+const sharp = require('sharp');
 const async = require('async');
 const post = require('../models/post');
 const image = require('../models/image');
@@ -225,94 +226,107 @@ exports.posts_post = (req, res, next) => {
   }
 
   const newImgId = mongoose.Types.ObjectId();
+  console.log(req.files[0]);
   const oldPath = `${req.files[0].path}`;
-  const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
+  const dateRef = new Date().toISOString();
+  const newPathStr = `uploads/${user._id}/${dateRef}_${req.files[0].filename}.jpeg`;
+  sharp(oldPath)
+    .resize({ fit: sharp.fit.contain, width: 800 })
+    .jpeg({ lossless: true, quality: 75 })
+    .toFile(newPathStr, (err, info) => {
+      console.log(info);
+      /*   const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
 
   fs.renameSync(oldPath, newPathStr, function (err) {
     if (err) throw err;
     newPath.push(newPathStr);
-  });
+  }); */
 
-  if (typeof req.files !== 'undefined') {
-    const image = new Image({
-      name: `${Date.now()}-odin-img`,
-      url: newPathStr,
-      _id: newImgId.toString(),
-      alt: modifiedAlt,
-      filter: filter,
-    });
-    image.img.contentType = req.files[0].mimetype;
-    image.save(function (err, image) {
-      if (err) console.log(err);
-    });
-  } else {
-    return res.sendStatus(400);
-  }
-  const newPost = new Post({
-    post: modifiedPost,
-    user: {
-      id: user._id,
-      username: user.username,
-      avatar: {
-        id: user.avatar.id,
-        url: user.avatar.url,
-      },
-    },
-    published: true,
-    image: {
-      id: newImgId.toString(),
-      url: newPathStr,
-      alt: modifiedAlt,
-      filter: filter,
-      contentType: req.files[0].mimetype,
-    },
-    location: locationDisplayed,
-    tagged: taggedUsers,
-    comments: [],
-    like: [],
-    _id: mongoose.Types.ObjectId(),
-  }).save((err, newPost) => {
-    if (err) return console.log(err);
-    else {
-      if (taggedPost.length) {
-        let tagged = taggedPost;
-        newPost = newPost.toObject();
-        for (let i = 0; i < tagged.length; i++) {
-          const userId = String(tagged[i].user._id);
-          console.log('newPost', newPost);
-          let updateFields = {
-            $push: {
-              taggedPosts: newPost._id,
-              notifications: {
-                type: 'user/tagged',
-                post: {
-                  user: {
-                    _id: newPost.user.id,
-                    username: newPost.user.username,
-                    avatar: {
-                      id: newPost.user.avatar.id,
-                      url: newPost.user.avatar.url,
+      if (typeof req.files !== 'undefined') {
+        const image = new Image({
+          name: `${Date.now()}-odin-img`,
+          url: newPathStr,
+          _id: newImgId.toString(),
+          alt: modifiedAlt,
+          filter: filter,
+        });
+        image.img.contentType = req.files[0].mimetype;
+        image.save(function (err, image) {
+          if (err) console.log(err);
+        });
+      } else {
+        return res.sendStatus(400);
+      }
+      const newPost = new Post({
+        post: modifiedPost,
+        user: {
+          id: user._id,
+          username: user.username,
+          avatar: {
+            id: user.avatar.id,
+            url: user.avatar.url,
+          },
+        },
+        published: true,
+        image: {
+          id: newImgId.toString(),
+          url: newPathStr,
+          alt: modifiedAlt,
+          filter: filter,
+          contentType: req.files[0].mimetype,
+        },
+        location: locationDisplayed,
+        tagged: taggedUsers,
+        comments: [],
+        like: [],
+        _id: mongoose.Types.ObjectId(),
+      }).save((err, newPost) => {
+        if (err) return console.log(err);
+        else {
+          if (taggedPost.length) {
+            let tagged = taggedPost;
+            newPost = newPost.toObject();
+            for (let i = 0; i < tagged.length; i++) {
+              const userId = String(tagged[i].user._id);
+              console.log('newPost', newPost);
+              let updateFields = {
+                $push: {
+                  taggedPosts: newPost._id,
+                  notifications: {
+                    type: 'user/tagged',
+                    post: {
+                      user: {
+                        _id: newPost.user.id,
+                        username: newPost.user.username,
+                        avatar: {
+                          id: newPost.user.avatar.id,
+                          url: newPost.user.avatar.url,
+                        },
+                      },
+                      _id: newPost._id,
+                      thumbnail: {
+                        url: newPost.image.url,
+                        alt: newPost.image.alt,
+                        filter: newPost.image.filter,
+                      },
                     },
-                  },
-                  _id: newPost._id,
-                  thumbnail: {
-                    url: newPost.image.url,
-                    alt: newPost.image.alt,
-                    filter: newPost.image.filter,
+                    seen: false,
                   },
                 },
-                seen: false,
-              },
-            },
-          };
-          User.findByIdAndUpdate(userId, updateFields, function (err, user) {
-            if (err) console.log(err);
-          });
+              };
+              User.findByIdAndUpdate(
+                userId,
+                updateFields,
+                function (err, user) {
+                  if (err) console.log(err);
+                }
+              );
+            }
+          }
+          return res.json({ newPost });
         }
-      }
-      return res.json({ newPost });
-    }
-  });
+      });
+    });
 };
 
 exports.post_get = (req, res, next) => {
