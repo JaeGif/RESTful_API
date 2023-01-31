@@ -7,9 +7,6 @@ const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const sharp = require('sharp');
-const async = require('async');
-const post = require('../models/post');
-const image = require('../models/image');
 
 dayjs.extend(relativeTime);
 
@@ -232,7 +229,7 @@ exports.posts_post = (req, res, next) => {
   const newPathStr = `uploads/${user._id}/${dateRef}_${req.files[0].filename}.jpeg`;
   sharp(oldPath)
     .resize({ fit: sharp.fit.contain, width: 800 })
-    .jpeg({ lossless: true, quality: 75 })
+    .jpeg({ lossless: true, quality: 95 })
     .toFile(newPathStr, (err, info) => {
       console.log(info);
       /*   const newPathStr = `uploads/${user._id}/${req.files[0].filename}`;

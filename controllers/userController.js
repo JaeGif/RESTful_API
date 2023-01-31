@@ -1,5 +1,7 @@
 const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
+const fs = require('fs');
+const sharp = require('sharp');
 
 exports.users_get = (req, res, next) => {
   // find all users
