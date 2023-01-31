@@ -13,8 +13,8 @@ router.get('/users/:userid', auth.authenticate(), userController.user_get);
 router.put(
   '/users/:userid',
   upload.single('image'),
-  auth.authenticate(),
-  userController.user_put
+  /*   auth.authenticate(),
+   */ userController.user_put
 );
 router.delete(
   '/users/:userid',

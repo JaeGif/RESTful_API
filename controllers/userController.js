@@ -374,6 +374,53 @@ exports.user_put = (req, res, next) => {
       }
     });
   }
+  if (req.body.editAvatar) {
+    const avatarField = JSON.parse(req.body.editAvatar);
+    console.log(req.file);
+    const newImgId = mongoose.Types.ObjectId();
+    const oldPath = `${req.file.path}`;
+    const dateRef = new Date().toISOString();
+    const newPathStr = `uploads/${req.params.userid}/${dateRef}_${req.file.filename}.jpeg`;
+    sharp(oldPath)
+      .resize({ fit: sharp.fit.contain, width: 500 })
+      .jpeg({ lossless: true, quality: 100 })
+      .toFile(newPathStr, (err, info) => {
+        updateFields = {
+          $set: {
+            'avatar.id': mongoose.Types.ObjectId(),
+            'avatar.url': newPathStr,
+          },
+        };
+        // edit is an object containing fields to change.
+        // password will require some serious changes using passport.
+        // edit = {avatar: {id: str, url: str }, username: str, firstName: str, lastName: str, email: str, password: str}
+        User.findByIdAndUpdate(
+          req.params.userid,
+          updateFields,
+          function (err, user) {
+            if (err) console.log(err);
+            else {
+              return user ? res.sendStatus(200) : res.sendStatus(404);
+            }
+          }
+        );
+      });
+  }
+  if (req.body.editUser) {
+    const edit = JSON.parse(req.body.editUser);
+    updateFields = { $set: edit };
+    User.findByIdAndUpdate(
+      req.params.userid,
+      updateFields,
+      function (err, user) {
+        if (err) console.log(err);
+        else {
+          console.log(user);
+          return user ? res.sendStatus(200) : res.sendStatus(404);
+        }
+      }
+    );
+  }
 };
 
 exports.user_delete = (req, res, next) => {
