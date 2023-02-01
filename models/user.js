@@ -28,7 +28,7 @@ const UserSchema = new Schema({
       post: {
         user: {
           _id: { type: Schema.Types.ObjectId, ref: 'User' },
-          userName: { type: String },
+          username: { type: String },
           avatar: {
             id: { type: Schema.Types.ObjectId, ref: 'Image' },
             url: { type: String },
