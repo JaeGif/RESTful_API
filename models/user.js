@@ -23,7 +23,7 @@ const UserSchema = new Schema({
           url: { type: String },
         },
         _id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        userName: { type: String, required: true },
+        username: { type: String, required: true },
       },
       post: {
         user: {

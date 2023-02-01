@@ -228,7 +228,8 @@ exports.posts_post = (req, res, next) => {
   const dateRef = new Date().toISOString();
   const newPathStr = `uploads/${user._id}/${dateRef}_${req.files[0].filename}.jpeg`;
   sharp(oldPath)
-    .resize({ fit: sharp.fit.contain, width: 800 })
+    .rotate()
+    .resize({ fit: 'inside', width: 800 })
     .jpeg({ lossless: true, quality: 95 })
     .toFile(newPathStr, (err, info) => {
       console.log(info);
