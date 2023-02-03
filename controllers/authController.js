@@ -35,7 +35,8 @@ exports.register = function (req, res) {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       username: req.body.username,
-      email: req.body.email,
+      bio: '',
+      website: '',
       isAdmin: false,
       avatar: {
         id: mongoose.Types.ObjectId(),

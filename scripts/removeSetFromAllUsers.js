@@ -19,10 +19,15 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
-User.updateMany({}, { $set: { bio: '' } }, function (err, user) {
-  if (err) console.log(err);
-  else {
-    console.log('done');
-    db.close();
+User.updateMany(
+  {},
+  { $unset: { email: 1 } },
+
+  function (err, user) {
+    if (err) console.log(err);
+    else {
+      console.log('done');
+      db.close();
+    }
   }
-});
+);
