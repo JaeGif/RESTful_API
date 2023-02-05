@@ -215,7 +215,8 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
-  console.log(req.body);
+  console.log(req.file);
+
   if (req.body.follow) {
     console.log(req.body.follow);
     let followObj = JSON.parse(req.body.follow);
@@ -379,8 +380,7 @@ exports.user_put = (req, res, next) => {
       }
     });
   }
-  if (req.body.editAvatar) {
-    const avatarField = JSON.parse(req.body.editAvatar);
+  if (req.file) {
     console.log(req.file);
     const newImgId = mongoose.Types.ObjectId();
     const oldPath = `${req.file.path}`;
@@ -392,7 +392,7 @@ exports.user_put = (req, res, next) => {
       .toFile(newPathStr, (err, info) => {
         updateFields = {
           $set: {
-            'avatar.id': mongoose.Types.ObjectId(),
+            'avatar.id': newImgId,
             'avatar.url': newPathStr,
           },
         };
