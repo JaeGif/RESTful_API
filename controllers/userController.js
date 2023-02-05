@@ -215,6 +215,7 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
+  console.log(req.body);
   if (req.body.follow) {
     console.log(req.body.follow);
     let followObj = JSON.parse(req.body.follow);
@@ -419,7 +420,6 @@ exports.user_put = (req, res, next) => {
       function (err, user) {
         if (err) console.log(err);
         else {
-          console.log(user);
           return user ? res.sendStatus(200) : res.sendStatus(404);
         }
       }
