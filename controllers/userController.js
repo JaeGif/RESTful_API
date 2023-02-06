@@ -425,6 +425,23 @@ exports.user_put = (req, res, next) => {
       }
     );
   }
+  if (req.body.changePassword) {
+    // user is your result from userschema using mongoose id
+    const changePassObj = JSON.parse(req.body.changePassword);
+    const oldPassword = changePassObj.oldPassword;
+    const newPassword = changePassObj.newPassword;
+    User.findById(req.params.userid, function (err, user) {
+      if (err) console.log(err);
+      else {
+        user.changePassword(oldPassword, newPassword, function (err) {
+          if (err) console.log(err);
+          else {
+            return res.sendStatus(200);
+          }
+        });
+      }
+    });
+  }
 };
 
 exports.user_delete = (req, res, next) => {
