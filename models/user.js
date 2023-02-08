@@ -12,29 +12,15 @@ const UserSchema = new Schema({
   isAdmin: { type: Boolean },
   following: [{ type: Schema.Types.ObjectId, ref: 'User' }], // only display posts from follows users using user filter on post retrieval. This is very unperformant at scale. Possibly rethink for bigger data.
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  savedPosts: [],
-  taggedPosts: [],
+  savedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  taggedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   notifications: [
     {
       type: { type: String, required: true },
       _id: { type: Schema.Types.ObjectId, required: true },
-      user: {
-        avatar: {
-          id: { type: Schema.Types.ObjectId, ref: 'Image' },
-          url: { type: String },
-        },
-        _id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-        username: { type: String, required: true },
-      },
+      user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
       post: {
-        user: {
-          _id: { type: Schema.Types.ObjectId, ref: 'User' },
-          username: { type: String },
-          avatar: {
-            id: { type: Schema.Types.ObjectId, ref: 'Image' },
-            url: { type: String },
-          },
-        },
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
         _id: { type: Schema.Types.ObjectId, ref: 'Post' },
         thumbnail: {
           url: { type: String },
@@ -45,7 +31,7 @@ const UserSchema = new Schema({
       seen: { type: Boolean },
     },
   ],
-  avatar: { id: { type: String }, url: { type: String } },
+  avatar: { type: String },
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 

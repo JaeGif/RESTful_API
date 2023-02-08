@@ -8,7 +8,7 @@ var auth = require('../middleware/auth')();
 router.get('/posts', auth.authenticate(), postController.posts_get);
 router.post(
   '/posts',
-  auth.authenticate(),
+
   upload.array('image', 10),
   postController.posts_post
 );

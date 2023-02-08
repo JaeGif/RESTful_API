@@ -9,7 +9,7 @@ const userController = require('../controllers/userController');
 /* GET users listing. */
 router.get('/users', auth.authenticate(), userController.users_get);
 router.post('/users', auth.authenticate(), userController.users_post);
-router.get('/users/:userid', auth.authenticate(), userController.user_get);
+router.get('/users/:userid', userController.user_get);
 router.put(
   '/users/:userid',
   upload.single('image'),

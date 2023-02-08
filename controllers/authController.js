@@ -38,11 +38,7 @@ exports.register = function (req, res) {
       bio: '',
       website: '',
       isAdmin: false,
-      avatar: {
-        id: mongoose.Types.ObjectId(),
-        url: 'uploads/default/guest.png',
-      },
-      // user will always follow themselves
+      avatar: 'uploads/default/guest.png',
       following: [],
       followers: [],
       savedPosts: [],

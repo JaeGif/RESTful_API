@@ -27,7 +27,7 @@ exports.posts_get = (req, res, next) => {
       if (err) console.log(err);
       else {
         const usersToDisplay = [...user.following, u];
-        Post.find({ 'user.id': { $in: usersToDisplay } })
+        Post.find({ user: { $in: usersToDisplay } })
           .limit(returnLimit)
           .skip(skipBy)
           .sort('-createdAt')
@@ -44,7 +44,7 @@ exports.posts_get = (req, res, next) => {
               if (userid) {
                 // takes uID string
                 results = results.filter(
-                  (post) => post.user.id.toString() === userid
+                  (post) => post.user.toString() === userid
                 );
               }
               if (published) {
@@ -131,9 +131,7 @@ exports.posts_get = (req, res, next) => {
           }
           if (userid) {
             // takes uID string
-            results = results.filter(
-              (post) => post.user.id.toString() === userid
-            );
+            results = results.filter((post) => post.user.toString() === userid);
           }
           if (published) {
             // takes bool
@@ -197,7 +195,8 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  let user = JSON.parse(req.body.user);
+  console.log(req.body);
+  let user = req.body.user;
   let location = req.body.location;
   let alt = req.body.alt;
   let post = req.body.post;
@@ -222,194 +221,120 @@ exports.posts_post = (req, res, next) => {
     modifiedPost = 'I forgot to add a comment, whoops!';
   }
 
-  const newImgId = mongoose.Types.ObjectId();
-  console.log(req.files[0]);
-  const oldPath = `${req.files[0].path}`;
-  const dateRef = new Date().toISOString();
-  let newPathStr = `uploads/${user._id}/${dateRef}_${req.files[0].filename}.jpeg`;
-  if (req.files[0].mimetype.includes('image')) {
-    sharp(oldPath)
-      .rotate()
-      .resize({ fit: 'inside', width: 800 })
-      .jpeg({ lossless: true, quality: 95 })
-      .toFile(newPathStr, (err, info) => {
-        fs.unlink(oldPath, (err) => {
-          if (err) throw err;
-        });
+  console.log(req.files);
 
-        if (typeof req.files !== 'undefined') {
-          const image = new Image({
-            name: `${Date.now()}-odin-img`,
-            url: newPathStr,
-            _id: newImgId.toString(),
-            alt: modifiedAlt,
-            filter: filter,
+  // handle adding multiple images/contents
+  // first make image id's since these will be needed async with Post, and now the async post reqs can be taken out of the for loop
+  // with no need for fancy promises, or the like. These idx are assigned appropriately when their image is allllll done.
+  let imageIdx = [];
+  for (let i = 0; i < req.files.length; i++) {
+    imageIdx.push(mongoose.Types.ObjectId());
+  }
+  console.log('out for', imageIdx);
+  for (let i = 0; i < req.files.length; i++) {
+    console.log('pass, ', i);
+    console.log('in for', imageIdx);
+    const oldPath = `${req.files[i].path}`;
+    const dateRef = new Date().toISOString();
+    let newPathStr = `uploads/${user}/${dateRef}_${req.files[i].filename}.jpeg`;
+    if (req.files[i].mimetype.includes('image')) {
+      sharp(oldPath)
+        .rotate()
+        .resize({ fit: 'inside', width: 800 })
+        .jpeg({ lossless: true, quality: 95 })
+        .toFile(newPathStr, (err, info) => {
+          fs.unlink(oldPath, (err) => {
+            if (err) throw err;
           });
-          image.img.contentType = req.files[0].mimetype;
-          image.save(function (err, image) {
-            if (err) console.log(err);
-          });
-        } else {
-          return res.sendStatus(400);
-        }
-        const newPost = new Post({
-          post: modifiedPost,
-          user: {
-            id: user._id,
-            username: user.username,
-            avatar: {
-              id: user.avatar.id,
-              url: user.avatar.url,
-            },
-          },
-          published: true,
-          image: {
-            id: newImgId.toString(),
-            url: newPathStr,
-            alt: modifiedAlt,
-            filter: filter,
-            contentType: req.files[0].mimetype,
-          },
-          location: locationDisplayed,
-          tagged: taggedUsers,
-          comments: [],
-          like: [],
-          _id: mongoose.Types.ObjectId(),
-        }).save((err, newPost) => {
-          if (err) return console.log(err);
-          else {
-            if (taggedPost.length) {
-              let tagged = taggedPost;
-              newPost = newPost.toObject();
-              for (let i = 0; i < tagged.length; i++) {
-                const userId = String(tagged[i].user._id);
-                console.log('newPost', newPost);
-                let updateFields = {
-                  $push: {
-                    taggedPosts: newPost._id,
-                    notifications: {
-                      type: 'user/tagged',
-                      post: {
-                        user: {
-                          _id: newPost.user.id,
-                          username: newPost.user.username,
-                          avatar: {
-                            id: newPost.user.avatar.id,
-                            url: newPost.user.avatar.url,
-                          },
-                        },
-                        _id: newPost._id,
-                        thumbnail: {
-                          url: newPost.image.url,
-                          alt: newPost.image.alt,
-                          filter: newPost.image.filter,
-                        },
-                      },
-                      seen: false,
-                    },
-                  },
-                };
-                User.findByIdAndUpdate(
-                  userId,
-                  updateFields,
-                  function (err, user) {
-                    if (err) console.log(err);
-                  }
-                );
-              }
-            }
-            return res.json({ newPost });
-          }
-        });
-      });
-  } else {
-    newPathStr = `uploads/${user._id}/${req.files[0].filename}`;
 
-    fs.renameSync(oldPath, newPathStr, function (err) {
-      if (err) throw err;
-      newPath.push(newPathStr);
-    });
-    if (typeof req.files !== 'undefined') {
-      const image = new Image({
-        name: `${Date.now()}-odin-img`,
-        url: newPathStr,
-        _id: newImgId.toString(),
-        alt: modifiedAlt,
-        filter: filter,
-      });
-      image.img.contentType = req.files[0].mimetype;
-      image.save(function (err, image) {
-        if (err) console.log(err);
-      });
-    } else {
-      return res.sendStatus(400);
-    }
-    const newPost = new Post({
-      post: modifiedPost,
-      user: {
-        id: user._id,
-        username: user.username,
-        avatar: {
-          id: user.avatar.id,
-          url: user.avatar.url,
-        },
-      },
-      published: true,
-      image: {
-        id: newImgId.toString(),
-        url: newPathStr,
-        alt: modifiedAlt,
-        filter: filter,
-        contentType: req.files[0].mimetype,
-      },
-      location: locationDisplayed,
-      tagged: taggedUsers,
-      comments: [],
-      like: [],
-      _id: mongoose.Types.ObjectId(),
-    }).save((err, newPost) => {
-      if (err) return console.log(err);
-      else {
-        if (taggedPost.length) {
-          let tagged = taggedPost;
-          newPost = newPost.toObject();
-          for (let i = 0; i < tagged.length; i++) {
-            const userId = String(tagged[i].user._id);
-            console.log('newPost', newPost);
-            let updateFields = {
-              $push: {
-                taggedPosts: newPost._id,
-                notifications: {
-                  type: 'user/tagged',
-                  post: {
-                    user: {
-                      _id: newPost.user.id,
-                      username: newPost.user.username,
-                      avatar: {
-                        id: newPost.user.avatar.id,
-                        url: newPost.user.avatar.url,
-                      },
-                    },
-                    _id: newPost._id,
-                    thumbnail: {
-                      url: newPost.image.url,
-                      alt: newPost.image.alt,
-                      filter: newPost.image.filter,
-                    },
-                  },
-                  seen: false,
-                },
-              },
-            };
-            User.findByIdAndUpdate(userId, updateFields, function (err, user) {
+          if (typeof req.files !== 'undefined') {
+            const image = new Image({
+              name: `${Date.now()}-odin-img`,
+              url: newPathStr,
+              _id: imageIdx[i],
+              alt: modifiedAlt,
+              filter: filter,
+            });
+            image.img.contentType = req.files[i].mimetype;
+            image.save(function (err, image) {
               if (err) console.log(err);
             });
+          } else {
+            return res.sendStatus(400);
           }
-        }
-        return res.json({ newPost });
+        });
+    } else {
+      // video content
+      newPathStr = `uploads/${user}/${req.files[i].filename}`;
+
+      fs.renameSync(oldPath, newPathStr, function (err) {
+        if (err) throw err;
+        newPath.push(newPathStr);
+      });
+      if (typeof req.files !== 'undefined') {
+        const image = new Image({
+          name: `${Date.now()}-odin-img`,
+          url: newPathStr,
+          _id: imageIdx[i],
+          alt: modifiedAlt,
+          filter: filter,
+        });
+        image.img.contentType = req.files[i].mimetype;
+        image.save(function (err, image) {
+          if (err) console.log(err);
+        });
+      } else {
+        return res.sendStatus(400);
       }
-    });
+    }
+
+    // New POST BREAKPOINT
   }
+  const newPost = new Post({
+    post: modifiedPost,
+    user: user,
+    published: true,
+    images: imageIdx,
+    location: locationDisplayed,
+    tagged: taggedUsers,
+    comments: [],
+    like: [],
+    _id: mongoose.Types.ObjectId(),
+  }).save((err, newPost) => {
+    if (err) return console.log(err);
+    else {
+      if (taggedPost.length) {
+        let tagged = taggedPost;
+        newPost = newPost.toObject();
+        for (let i = 0; i < tagged.length; i++) {
+          const userId = String(tagged[i].user);
+          console.log('newPost', newPost);
+          let updateFields = {
+            $push: {
+              taggedPosts: newPost._id,
+              notifications: {
+                type: 'user/tagged',
+                post: {
+                  user: newPost.user,
+                  _id: newPost._id,
+                  thumbnail: {
+                    url: newPost.image[0].url,
+                    alt: newPost.image[0].alt,
+                    filter: newPost.image[0].filter,
+                  },
+                },
+                seen: false,
+              },
+            },
+          };
+          User.findByIdAndUpdate(userId, updateFields, function (err, user) {
+            if (err) console.log(err);
+          });
+        }
+      }
+      return res.json({ newPost });
+    }
+  });
 };
 
 exports.post_get = (req, res, next) => {
@@ -508,7 +433,7 @@ exports.post_post = (req, res, next) => {
           else {
             console.log('found post');
 
-            User.findById(fullPost.user.id, function (err, user) {
+            User.findById(fullPost.user, function (err, user) {
               if (err) console.log(err);
               else {
                 console.log('found post author');
@@ -522,7 +447,7 @@ exports.post_post = (req, res, next) => {
                       user.notifications[i].type === 'post/like' &&
                       user.notifications[i]._id.toString() ===
                         fullPost._id.toString() &&
-                      user.notifications[i].user._id.toString() === likedBy._id
+                      user.notifications[i].user.toString() === likedBy._id
                     ) {
                       console.log('this notification already exists');
                       return user ? res.sendStatus(200) : res.sendStatus(404);
@@ -530,20 +455,14 @@ exports.post_post = (req, res, next) => {
                   }
                   // send notification to correct user
                   User.findByIdAndUpdate(
-                    user._id,
+                    user,
                     {
                       $push: {
                         notifications: {
                           type: 'post/like',
                           _id: req.params.postid,
-                          user: {
-                            avatar: {
-                              id: likedBy.avatar._id,
-                              url: likedBy.avatar.url,
-                            },
-                            _id: likedBy._id,
-                            username: likedBy.username,
-                          },
+                          user: likedBy._id,
+
                           post: {
                             _id: likedBy.post._id,
                             thumbnail: {
@@ -570,20 +489,14 @@ exports.post_post = (req, res, next) => {
                 } else {
                   // send notification to correct user if there are NO notifications
                   User.findByIdAndUpdate(
-                    user._id,
+                    user,
                     {
                       $push: {
                         notifications: {
                           type: 'post/like',
                           _id: req.params.postid,
-                          user: {
-                            _id: likedBy._id,
-                            username: likedBy.username,
-                            avatar: {
-                              _id: likedBy.avatar._id,
-                              url: likedBy.avatar.url,
-                            },
-                          },
+                          user: likedBy._id,
+
                           post: {
                             _id: likedBy.post._id,
                             thumbnail: {
@@ -621,14 +534,9 @@ exports.post_post = (req, res, next) => {
 
     const comment = new Comment({
       comment: req.body.comment,
-      user: {
-        id: user._id,
-        username: user.username,
-        avatar: {
-          id: user.avatar.id,
-          url: user.avatar.url,
-        },
-      },
+      user: user,
+      replies: [],
+      like: [],
     }).save((err, comment) => {
       if (err) return console.log(err);
       else {

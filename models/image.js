@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ImageSchema = new Schema({
-  _id: { type: String },
+  _id: { type: mongoose.Types.ObjectId },
   name: { type: String },
   img: {
     contentType: { type: String },

@@ -19,9 +19,9 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'mongo connection error'));
 
-User.updateMany(
+Post.updateMany(
   {},
-  { $rename: { userName: 'username' } },
+  { $rename: { 'user.id': 'user._id' } },
   { multi: true },
   function (err, blocks) {
     if (err) {

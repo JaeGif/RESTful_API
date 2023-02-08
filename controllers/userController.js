@@ -215,7 +215,6 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
-  console.log(req.file);
 
   if (req.body.follow) {
     console.log(req.body.follow);
@@ -260,14 +259,7 @@ exports.user_put = (req, res, next) => {
                       notifications: {
                         type: 'user/follow',
                         _id: mongoose.Types.ObjectId(),
-                        user: {
-                          avatar: {
-                            id: addedUser.avatar.id,
-                            url: addedUser.avatar.url,
-                          },
-                          _id: addedUser._id,
-                          username: addedUser.username,
-                        },
+                        user: addedUser._id,
                         seen: false,
                       },
                     },
@@ -382,7 +374,6 @@ exports.user_put = (req, res, next) => {
   }
   if (req.file) {
     console.log(req.file);
-    const newImgId = mongoose.Types.ObjectId();
     const oldPath = `${req.file.path}`;
     const dateRef = new Date().toISOString();
     const newPathStr = `uploads/${req.params.userid}/${dateRef}_${req.file.filename}.jpeg`;
@@ -392,8 +383,7 @@ exports.user_put = (req, res, next) => {
       .toFile(newPathStr, (err, info) => {
         updateFields = {
           $set: {
-            'avatar.id': newImgId,
-            'avatar.url': newPathStr,
+            avatar: newPathStr,
           },
         };
         // edit is an object containing fields to change.
@@ -426,6 +416,7 @@ exports.user_put = (req, res, next) => {
     );
   }
   if (req.body.changePassword) {
+    console.log('searching for user');
     // user is your result from userschema using mongoose id
     const changePassObj = JSON.parse(req.body.changePassword);
     const oldPassword = changePassObj.oldPassword;
@@ -433,9 +424,11 @@ exports.user_put = (req, res, next) => {
     User.findById(req.params.userid, function (err, user) {
       if (err) console.log(err);
       else {
+        console.log(user);
         user.changePassword(oldPassword, newPassword, function (err) {
           if (err) console.log(err);
           else {
+            console.log('changed');
             return res.sendStatus(200);
           }
         });
