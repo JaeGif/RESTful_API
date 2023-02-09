@@ -39,7 +39,25 @@ exports.comment_get = (req, res, next) => {
   Comment.findById(req.params.commentid, function (err, comment) {
     if (err) return next(err);
     else {
-      return comment ? res.json({ comment }) : res.sendStatus(404);
+      let result;
+      let edited = false;
+      let createdFormatted = dayjs().to(dayjs(comment.createdAt));
+      let updatedFormatted = dayjs().to(dayjs(comment.updatedAt));
+
+      if (String(comment.createdAt) !== String(comment.updatedAt)) {
+        edited = true;
+      }
+      result = {
+        ...comment._doc,
+        ...{
+          createdAt: createdFormatted,
+          updatedAt: updatedFormatted,
+          edited: edited,
+        },
+      };
+      console.log(comment);
+      console.log(result);
+      return comment ? res.json({ comment: result }) : res.sendStatus(404);
     }
   });
 };
