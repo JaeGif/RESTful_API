@@ -355,6 +355,14 @@ exports.user_put = (req, res, next) => {
   if (req.body.savedPost) {
     let savedPost = JSON.parse(req.body.savedPost);
     updateFields = { $push: { savedPosts: savedPost } };
+
+    User.findById(req.params.userid, function (err, user) {
+      for (let i = 0; i < user.savedPosts.length; i++) {
+        if (savedPost === user.savedPost) {
+          updateFields = { $pull: { savedPosts: savedPost } };
+        }
+      }
+    });
     User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
       if (err) console.log(err);
       else {

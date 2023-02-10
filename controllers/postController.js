@@ -22,10 +22,10 @@ exports.posts_get = (req, res, next) => {
   const skipBy = returnLimit * parseInt(page);
 
   if (u) {
-    console.log(u);
     User.findById(u, function (err, user) {
       if (err) console.log(err);
       else {
+        console.log(user);
         const usersToDisplay = [...user.following, u];
         Post.find({ user: { $in: usersToDisplay } })
           .limit(returnLimit)
@@ -81,30 +81,6 @@ exports.posts_get = (req, res, next) => {
                       edited: editedPost,
                     },
                   };
-                  for (let j = 0; j < results[i].comments.length; j++) {
-                    let commentCreatedFormatted = dayjs().to(
-                      dayjs(results[i].comments[j].createdAt)
-                    );
-                    let commentUpdatedFormatted = dayjs().to(
-                      dayjs(results[i].comments[j].updatedAt)
-                    );
-                    let edited = false;
-
-                    if (
-                      String(results[i].comments[j].createdAt) !==
-                      String(results[i].comments[j].updatedAt)
-                    ) {
-                      edited = true;
-                    }
-                    results[i].comments[j] = {
-                      ...results[i].comments[j],
-                      ...{
-                        createdAt: commentCreatedFormatted,
-                        updatedAt: commentUpdatedFormatted,
-                        edited: edited,
-                      },
-                    };
-                  }
                 } catch (error) {
                   console.log('error parsing post/comment dates', error);
                 }
