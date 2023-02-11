@@ -61,7 +61,6 @@ exports.users_get = (req, res, next) => {
         results = results.filter((user) =>
           user.username.toLowerCase().includes(username.toLowerCase())
         );
-        console.log(results.length);
         // search for user real name is username fails
         if (q && !results.length) {
           // check for firstname first
@@ -144,33 +143,46 @@ exports.user_get = (req, res, next) => {
             // if 5 still not fulfilled by the end of previous results
             // check for followers user is not following back
             if (count < suggestedLimit) {
+              console.log('following ', loggedUser.following);
+              console.log('followers ', loggedUser.followers);
+
               console.log(count, suggestedLimit);
+              // check followers
               followerloop: for (
                 let i = 0;
                 i < loggedUser.followers.length;
                 i++
               ) {
+                console.log('0');
+
                 if (
-                  // if you already have this guy followed
+                  // if you already have this guy followed check the rest of your followers
                   loggedUser.following.includes(
                     loggedUser.followers[i].toString()
                   )
                 ) {
+                  console.log('1,', i, loggedUser.followers.length);
                   continue followerloop;
                 }
-
+                console.log('1.5');
                 followingloop: for (
                   let j = 0;
                   j < loggedUser.following.length;
                   j++
                 ) {
+                  console.log('2');
+
                   if (results.length >= suggestedLimit) {
+                    console.log('3');
+
                     break followerloop;
                   }
                   if (
                     loggedUser.followers[i].toString() !==
                     loggedUser.following[j].toString()
                   ) {
+                    console.log('4');
+
                     console.log(
                       'i',
                       loggedUser.followers[i].toString(),
@@ -185,21 +197,62 @@ exports.user_get = (req, res, next) => {
                         loggedUser.followers[i].toString() ===
                           loggedUser._id.toString()
                       ) {
+                        console.log('5');
+
                         continue followingloop;
                       }
                     }
+                    console.log('6');
                     count++;
                     results.push({
                       user: loggedUser.followers[i].toString(),
                       type: 'user/follower',
                     });
+                    console.log('7');
                   }
+                  console.log('8');
                 }
+                console.log('9');
               }
+
+              if (count < suggestedLimit) {
+                User.find({ _id: { $nin: loggedUser.following } })
+                  .limit(suggestedLimit + 1)
+                  .exec(function (err, users) {
+                    if (err) console.log(err);
+                    else {
+                      for (let l = 0; l < users.length; l++) {
+                        if (
+                          users[l]._id.toString() !== loggedUser._id.toString()
+                        ) {
+                          console.log('99');
+                          count++;
+                          results.push({
+                            user: users[l]._id.toString(),
+                            type: 'user/unique',
+                          });
+                        }
+                      }
+                      console.log('returning here');
+                      return users
+                        ? res.json({ suggested: results })
+                        : res.sendStatus(404);
+                    }
+                  });
+              } else {
+                console.log('returning there');
+
+                return users
+                  ? res.json({ suggested: results })
+                  : res.sendStatus(404);
+              }
+              console.log('10');
             }
-            return users
+            console.log('11');
+            console.log(results);
+            /*             return users
               ? res.json({ suggested: results })
-              : res.sendStatus(404);
+              : res.sendStatus(404); */
           }
         });
       }
@@ -217,7 +270,6 @@ exports.user_put = (req, res, next) => {
   let updateFields = {};
 
   if (req.body.follow) {
-    console.log(req.body.follow);
     let followObj = JSON.parse(req.body.follow);
 
     switch (followObj.type) {
@@ -243,14 +295,11 @@ exports.user_put = (req, res, next) => {
         if (err) console.log(err);
         else {
           if (followObj.type === 'follower/add') {
-            console.log('sending');
-
             User.findById(followObj._id, function (err, addedUser) {
               if (err) console.log(err);
               else {
                 // cast mongoose obj to JS obj first
                 addedUser = addedUser.toObject();
-                console.log(addedUser.username);
 
                 User.findByIdAndUpdate(
                   user._id,
@@ -281,7 +330,6 @@ exports.user_put = (req, res, next) => {
     User.findById(req.params.userid, function (err, user) {
       if (err) console.log(err);
       else {
-        console.log(user.notifications.length);
         for (let i = 0; i < user.notifications.length; i++) {
           User.findByIdAndUpdate(
             req.params.userid,
@@ -303,11 +351,9 @@ exports.user_put = (req, res, next) => {
   }
   if (req.body.removeRecent) {
     updateFields = { $pull: { recentSearches: req.body.removeRecent } };
-    console.log('fields unsetting');
     User.findByIdAndUpdate(req.params.userid, updateFields, (err, user) => {
       if (err) console.log(err);
       else {
-        console.log('fields successfully unset');
         return user ? res.sendStatus(200) : res.sendStatus(404);
       }
     });
@@ -321,17 +367,12 @@ exports.user_put = (req, res, next) => {
         for (let i = 0; i < user.recentSearches.length; i++) {
           // if the search is already logged, just return with no change
           if (user.recentSearches[i].toString() === searchedUserId) {
-            console.log('this is a duplicate');
-            console.log('recents,', user.recentSearches.length);
-
             return user ? res.sendStatus(200) : res.sendStatus(404);
           }
         }
         if (user.recentSearches.length >= 10) {
           // if the search is NOT logged, check length to see if it needs to be popped.
-          console.log('removing last element');
           const removeLastElement = { $pop: { recentSearches: 1 } };
-          console.log('recents,', user.recentSearches);
           User.findByIdAndUpdate(
             req.params.userid,
             removeLastElement,
@@ -381,7 +422,6 @@ exports.user_put = (req, res, next) => {
     });
   }
   if (req.file) {
-    console.log(req.file);
     const oldPath = `${req.file.path}`;
     const dateRef = new Date().toISOString();
     const newPathStr = `uploads/${req.params.userid}/${dateRef}_${req.file.filename}.jpeg`;
@@ -424,7 +464,6 @@ exports.user_put = (req, res, next) => {
     );
   }
   if (req.body.changePassword) {
-    console.log('searching for user');
     // user is your result from userschema using mongoose id
     const changePassObj = JSON.parse(req.body.changePassword);
     const oldPassword = changePassObj.oldPassword;
@@ -432,11 +471,9 @@ exports.user_put = (req, res, next) => {
     User.findById(req.params.userid, function (err, user) {
       if (err) console.log(err);
       else {
-        console.log(user);
         user.changePassword(oldPassword, newPassword, function (err) {
           if (err) console.log(err);
           else {
-            console.log('changed');
             return res.sendStatus(200);
           }
         });

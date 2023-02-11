@@ -14,7 +14,6 @@ exports.image_get = (req, res, next) => {
   Image.findById(req.params.imageid, (err, image) => {
     if (err) return next(err);
     else {
-      console.log(image);
       return image ? res.json({ image }) : res.sendStatus(404);
     }
   });

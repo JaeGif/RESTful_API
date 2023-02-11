@@ -25,7 +25,6 @@ exports.posts_get = (req, res, next) => {
     User.findById(u, function (err, user) {
       if (err) console.log(err);
       else {
-        console.log(user);
         const usersToDisplay = [...user.following, u];
         Post.find({ user: { $in: usersToDisplay } })
           .limit(returnLimit)
@@ -171,7 +170,6 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  console.log(req.body);
   let user = req.body.user;
   let location = req.body.location;
   let alt = req.body.alt;
@@ -197,8 +195,6 @@ exports.posts_post = (req, res, next) => {
     modifiedPost = 'I forgot to add a comment, whoops!';
   }
 
-  console.log(req.files);
-
   // handle adding multiple images/contents
   // first make image id's since these will be needed async with Post, and now the async post reqs can be taken out of the for loop
   // with no need for fancy promises, or the like. These idx are assigned appropriately when their image is allllll done.
@@ -206,10 +202,7 @@ exports.posts_post = (req, res, next) => {
   for (let i = 0; i < req.files.length; i++) {
     imageIdx.push(mongoose.Types.ObjectId());
   }
-  console.log('out for', imageIdx);
   for (let i = 0; i < req.files.length; i++) {
-    console.log('pass, ', i);
-    console.log('in for', imageIdx);
     const oldPath = `${req.files[i].path}`;
     const dateRef = new Date().toISOString();
     let newPathStr = `uploads/${user}/${dateRef}_${req.files[i].filename}.jpeg`;
@@ -284,7 +277,6 @@ exports.posts_post = (req, res, next) => {
         newPost = newPost.toObject();
         for (let i = 0; i < tagged.length; i++) {
           const userId = String(tagged[i].user);
-          console.log('newPost', newPost);
           let updateFields = {
             $push: {
               taggedPosts: newPost._id,
@@ -385,8 +377,6 @@ exports.post_post = (req, res, next) => {
   if (req.body.like) {
     const likedBy = JSON.parse(req.body.like);
     // find individual post to check for likes
-    console.log('recieved like');
-    console.log(likedBy);
 
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
@@ -412,12 +402,8 @@ exports.post_post = (req, res, next) => {
             User.findById(fullPost.user, function (err, user) {
               if (err) console.log(err);
               else {
-                console.log('found post author');
-                console.log(user.notifications);
-
                 if (user.notifications.length !== 0) {
                   for (let i = 0; i < user.notifications.length; i++) {
-                    console.log('entering loop');
                     // if the notification is already present, DO NOT SEND
                     if (
                       user.notifications[i].type === 'post/like' &&
@@ -453,10 +439,6 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
-                        console.log(
-                          'new user notif array 1:',
-                          user.notifications
-                        );
                         console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
@@ -487,10 +469,6 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
-                        console.log(
-                          'new user notif array 2:',
-                          user.notifications
-                        );
                         console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
