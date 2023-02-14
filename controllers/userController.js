@@ -214,6 +214,7 @@ exports.user_get = (req, res, next) => {
                 }
                 console.log('9');
               }
+              console.log(results);
 
               if (count < suggestedLimit) {
                 User.find({ _id: { $nin: loggedUser.following } })
@@ -225,12 +226,14 @@ exports.user_get = (req, res, next) => {
                         if (
                           users[l]._id.toString() !== loggedUser._id.toString()
                         ) {
-                          console.log('99');
-                          count++;
-                          results.push({
-                            user: users[l]._id.toString(),
-                            type: 'user/unique',
-                          });
+                          if (count < suggestedLimit) {
+                            console.log('99');
+                            count++;
+                            results.push({
+                              user: users[l]._id.toString(),
+                              type: 'user/unique',
+                            });
+                          }
                         }
                       }
                       console.log('returning here');
@@ -246,13 +249,7 @@ exports.user_get = (req, res, next) => {
                   ? res.json({ suggested: results })
                   : res.sendStatus(404);
               }
-              console.log('10');
             }
-            console.log('11');
-            console.log(results);
-            /*             return users
-              ? res.json({ suggested: results })
-              : res.sendStatus(404); */
           }
         });
       }

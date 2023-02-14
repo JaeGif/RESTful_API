@@ -1,5 +1,4 @@
 const faker = require('@faker-js/faker').faker;
-require('dotenv').config();
 const mongoose = require('mongoose');
 const Post = require('../models/post');
 const User = require('../models/user');
@@ -7,6 +6,8 @@ const Comment = require('../models/comment');
 const Image = require('../models/image');
 const async = require('async');
 const fs = require('fs');
+
+require('dotenv').config();
 
 // import { faker } from '@faker-js/faker/locale/de';
 const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH THIS TO PROD

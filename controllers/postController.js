@@ -381,11 +381,15 @@ exports.post_post = (req, res, next) => {
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
       else {
-        updateFields = { $push: { like: likedBy } };
+        console.log(post.like, likedBy);
+        console.log('like');
+
+        updateFields = { $push: { like: likedBy._id } };
         for (let i = 0; i < post.like.length; i++) {
-          if (post.like[i]._id === likedBy._id) {
+          console.log('removing like');
+          if (post.like[i].toString() === likedBy._id) {
             updateFields = {
-              $pull: { like: { _id: likedBy._id } },
+              $pull: { like: likedBy._id },
             };
           }
         }
@@ -415,6 +419,7 @@ exports.post_post = (req, res, next) => {
                       return user ? res.sendStatus(200) : res.sendStatus(404);
                     }
                   }
+                  console.log(likedBy);
                   // send notification to correct user
                   User.findByIdAndUpdate(
                     user,
