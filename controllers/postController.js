@@ -170,17 +170,20 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
+  console.log('files', req.files);
+  console.log('body', req.body);
   let user = req.body.user;
   let location = req.body.location;
   let alt = req.body.alt;
   let post = req.body.post;
-  const filter = req.body.filter;
+  const imageData = JSON.parse(req.body.imageData);
   let modifiedAlt = alt;
   let modifiedPost = post;
   let locationStr = location;
   let locationDisplayed = location;
   let taggedUsers = [];
   let taggedPost = JSON.parse(req.body.taggedPost);
+
   if (taggedPost.length) {
     taggedUsers = taggedPost;
   }
@@ -199,6 +202,7 @@ exports.posts_post = (req, res, next) => {
   // first make image id's since these will be needed async with Post, and now the async post reqs can be taken out of the for loop
   // with no need for fancy promises, or the like. These idx are assigned appropriately when their image is allllll done.
   let imageIdx = [];
+  console.log('data', imageData);
   for (let i = 0; i < req.files.length; i++) {
     imageIdx.push(mongoose.Types.ObjectId());
   }
@@ -217,13 +221,14 @@ exports.posts_post = (req, res, next) => {
           });
 
           if (typeof req.files !== 'undefined') {
+            console.log('single data', imageData[i].filter);
             const image = new Image({
               name: `${Date.now()}-odin-img`,
               url: newPathStr,
               _id: imageIdx[i],
-              alt: modifiedAlt,
-              filter: filter,
             });
+            image.img.alt = modifiedAlt;
+            image.img.filter = imageData[i].filter;
             image.img.contentType = req.files[i].mimetype;
             image.save(function (err, image) {
               if (err) console.log(err);
@@ -246,7 +251,7 @@ exports.posts_post = (req, res, next) => {
           url: newPathStr,
           _id: imageIdx[i],
           alt: modifiedAlt,
-          filter: filter,
+          filter: imageData[i].filter,
         });
         image.img.contentType = req.files[i].mimetype;
         image.save(function (err, image) {
@@ -259,6 +264,8 @@ exports.posts_post = (req, res, next) => {
 
     // New POST BREAKPOINT
   }
+  console.log('imageIDX', imageIdx);
+
   const newPost = new Post({
     post: modifiedPost,
     user: user,
@@ -288,7 +295,7 @@ exports.posts_post = (req, res, next) => {
                   thumbnail: {
                     url: newPost.image[0].url,
                     alt: newPost.image[0].alt,
-                    filter: newPost.image[0].filter,
+                    filter: 'none',
                   },
                 },
                 seen: false,
@@ -382,11 +389,9 @@ exports.post_post = (req, res, next) => {
       if (err) console.log(err);
       else {
         console.log(post.like, likedBy);
-        console.log('like');
 
         updateFields = { $push: { like: likedBy._id } };
         for (let i = 0; i < post.like.length; i++) {
-          console.log('removing like');
           if (post.like[i].toString() === likedBy._id) {
             updateFields = {
               $pull: { like: likedBy._id },
@@ -401,8 +406,6 @@ exports.post_post = (req, res, next) => {
         (err, fullPost) => {
           if (err) console.log(err);
           else {
-            console.log('found post');
-
             User.findById(fullPost.user, function (err, user) {
               if (err) console.log(err);
               else {
@@ -415,11 +418,9 @@ exports.post_post = (req, res, next) => {
                         fullPost._id.toString() &&
                       user.notifications[i].user.toString() === likedBy._id
                     ) {
-                      console.log('this notification already exists');
                       return user ? res.sendStatus(200) : res.sendStatus(404);
                     }
                   }
-                  console.log(likedBy);
                   // send notification to correct user
                   User.findByIdAndUpdate(
                     user,
@@ -444,7 +445,6 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
-                        console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
                     }
@@ -474,7 +474,6 @@ exports.post_post = (req, res, next) => {
                     function (err, user) {
                       if (err) console.log(err);
                       else {
-                        console.log('new notification');
                         return user ? res.sendStatus(200) : res.sendStatus(404);
                       }
                     }

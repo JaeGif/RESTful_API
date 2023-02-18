@@ -227,7 +227,6 @@ exports.user_get = (req, res, next) => {
                           users[l]._id.toString() !== loggedUser._id.toString()
                         ) {
                           if (count < suggestedLimit) {
-                            console.log('99');
                             count++;
                             results.push({
                               user: users[l]._id.toString(),
@@ -236,15 +235,12 @@ exports.user_get = (req, res, next) => {
                           }
                         }
                       }
-                      console.log('returning here');
                       return users
                         ? res.json({ suggested: results })
                         : res.sendStatus(404);
                     }
                   });
               } else {
-                console.log('returning there');
-
                 return users
                   ? res.json({ suggested: results })
                   : res.sendStatus(404);
