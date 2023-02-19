@@ -265,7 +265,7 @@ exports.posts_post = (req, res, next) => {
     // New POST BREAKPOINT
   }
   console.log('imageIDX', imageIdx);
-
+  console.log(taggedUsers);
   const newPost = new Post({
     post: modifiedPost,
     user: user,
@@ -293,8 +293,8 @@ exports.posts_post = (req, res, next) => {
                   user: newPost.user,
                   _id: newPost._id,
                   thumbnail: {
-                    url: newPost.image[0].url,
-                    alt: newPost.image[0].alt,
+                    url: newPost.images[0].url,
+                    alt: newPost.images[0].alt,
                     filter: 'none',
                   },
                 },
