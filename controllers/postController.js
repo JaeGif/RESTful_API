@@ -281,9 +281,12 @@ exports.posts_post = (req, res, next) => {
     else {
       if (taggedPost.length) {
         let tagged = taggedPost;
+        console.log('tagged,', tagged);
         newPost = newPost.toObject();
         for (let i = 0; i < tagged.length; i++) {
-          const userId = String(tagged[i].user);
+          const userId = tagged[i];
+          console.log('user', userId);
+          console.log('new post', newPost._id);
           let updateFields = {
             $push: {
               taggedPosts: newPost._id,
