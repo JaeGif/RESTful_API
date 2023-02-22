@@ -114,6 +114,7 @@ exports.user_get = (req, res, next) => {
     const suggestedLimit = Number(req.query.s);
     User.findById(req.params.userid, function (err, loggedUser) {
       if (err) console.log(err);
+      if (err) console.log(err);
       else {
         User.find({ _id: { $in: loggedUser.following } }).exec(function (
           err,
@@ -261,64 +262,82 @@ exports.user_get = (req, res, next) => {
 };
 exports.user_put = (req, res, next) => {
   let updateFields = {};
+  User.findById(req.params.userid, function (err, userFound) {
+    if (req.body.follow) {
+      let followObj = JSON.parse(req.body.follow);
 
-  if (req.body.follow) {
-    let followObj = JSON.parse(req.body.follow);
+      switch (followObj.type) {
+        case 'follower/add':
+          for (let i = 0; i < userFound.followers; i++) {
+            console.log('entered 1');
+            if (userFound.followers[i].toString() === followObj._id) {
+              console.log('already follower');
+              return res.sendStatus(422);
+            }
+          }
+          updateFields = { $push: { followers: followObj._id } };
+          break;
+        case 'follower/remove':
+          updateFields = { $pull: { followers: followObj._id } };
+          break;
+        case 'following/add':
+          for (let i = 0; i < userFound.following; i++) {
+            console.log('entered 2');
 
-    switch (followObj.type) {
-      case 'follower/add':
-        updateFields = { $push: { followers: followObj._id } };
-        break;
-      case 'follower/remove':
-        updateFields = { $pull: { followers: followObj._id } };
-        break;
-      case 'following/add':
-        updateFields = { $push: { following: followObj._id } };
-        break;
-      case 'following/remove':
-        updateFields = { $pull: { following: followObj._id } };
-        break;
-      default:
-        return res.sendStatus(401);
-    }
-    User.findByIdAndUpdate(
-      req.params.userid,
-      updateFields,
-      function (err, user) {
-        if (err) console.log(err);
-        else {
-          if (followObj.type === 'follower/add') {
-            User.findById(followObj._id, function (err, addedUser) {
-              if (err) console.log(err);
-              else {
-                // cast mongoose obj to JS obj first
-                addedUser = addedUser.toObject();
+            if (userFound.following[i].toString() === followObj._id) {
+              console.log('already following');
 
-                User.findByIdAndUpdate(
-                  user._id,
-                  {
-                    $push: {
-                      notifications: {
-                        type: 'user/follow',
-                        _id: mongoose.Types.ObjectId(),
-                        user: addedUser._id,
-                        seen: false,
+              return res.sendStatus(422);
+            }
+          }
+          updateFields = { $push: { following: followObj._id } };
+          break;
+        case 'following/remove':
+          updateFields = { $pull: { following: followObj._id } };
+          break;
+        default:
+          return res.sendStatus(401);
+      }
+
+      User.findByIdAndUpdate(
+        req.params.userid,
+        updateFields,
+        function (err, user) {
+          if (err) console.log(err);
+          else {
+            if (followObj.type === 'follower/add') {
+              User.findById(followObj._id, function (err, addedUser) {
+                if (err) console.log(err);
+                else {
+                  // cast mongoose obj to JS obj first
+                  addedUser = addedUser.toObject();
+
+                  User.findByIdAndUpdate(
+                    user._id,
+                    {
+                      $push: {
+                        notifications: {
+                          type: 'user/follow',
+                          _id: mongoose.Types.ObjectId(),
+                          user: addedUser._id,
+                          seen: false,
+                        },
                       },
                     },
-                  },
-                  function (err, user) {
-                    if (err) console.log(err);
-                    else console.log(user.notifications[0]);
-                  }
-                );
-              }
-            });
+                    function (err, user) {
+                      if (err) console.log(err);
+                      else console.log(user.notifications[0]);
+                    }
+                  );
+                }
+              });
+            }
+            return user ? res.sendStatus(200) : res.sendStatus(404);
           }
-          return user ? res.sendStatus(200) : res.sendStatus(404);
         }
-      }
-    );
-  }
+      );
+    }
+  });
   if (req.body.seen) {
     User.findById(req.params.userid, function (err, user) {
       if (err) console.log(err);

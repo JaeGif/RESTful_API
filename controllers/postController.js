@@ -529,6 +529,31 @@ exports.post_post = (req, res, next) => {
     });
   }
 };
+exports.post_put = (req, res, next) => {
+  if (req.body.removeContent) {
+    let content = JSON.parse(req.body.removeContent);
+    for (let i = 0; i < content.length; i++) {
+      let updateFields = { $pull: { images: content[i] } };
+      Post.findByIdAndUpdate(
+        req.params.postid,
+        updateFields,
+        function (err, post) {
+          if (err) console.log(err);
+          else {
+            console.log('found img');
+
+            Image.findByIdAndDelete(content[i], function (err) {
+              if (err) console.log(err);
+              console.log('delete img');
+            });
+          }
+        }
+      );
+      console.log(count);
+    }
+    return res.sendStatus(200);
+  }
+};
 exports.post_comments_get = (req, res, next) => {
   // responds with comments matching the inputted postID ONLY
   const id = new mongoose.Types.ObjectId(req.params.postid);
