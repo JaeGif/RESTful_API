@@ -530,29 +530,38 @@ exports.post_post = (req, res, next) => {
   }
 };
 exports.post_put = (req, res, next) => {
+  let updateFields = {};
+  console.log(req.body);
+  if (req.body.post) {
+    updateFields = { ...updateFields, $set: { post: req.body.post } };
+  }
+  if (req.body.location) {
+    updateFields = {
+      ...updateFields,
+      $set: { ...updateFields.$set, location: req.body.location },
+    };
+  }
   if (req.body.removeContent) {
     let content = JSON.parse(req.body.removeContent);
-    for (let i = 0; i < content.length; i++) {
-      let updateFields = { $pull: { images: content[i] } };
-      Post.findByIdAndUpdate(
-        req.params.postid,
-        updateFields,
-        function (err, post) {
-          if (err) console.log(err);
-          else {
-            console.log('found img');
-
-            Image.findByIdAndDelete(content[i], function (err) {
-              if (err) console.log(err);
-              console.log('delete img');
-            });
-          }
-        }
-      );
-      console.log(count);
-    }
-    return res.sendStatus(200);
+    updateFields = { ...updateFields, $pull: { images: { $in: content } } };
   }
+  Post.findByIdAndUpdate(
+    req.params.postid,
+    updateFields,
+    function (err, uPost) {
+      if (err) console.log(err);
+      else {
+        console.log('found img');
+        for (let i = 0; i < content.length; i++) {
+          Image.findByIdAndDelete(content[i], function (err) {
+            if (err) console.log(err);
+            console.log('delete img');
+          });
+        }
+      }
+    }
+  );
+  return res.sendStatus(200);
 };
 exports.post_comments_get = (req, res, next) => {
   // responds with comments matching the inputted postID ONLY
