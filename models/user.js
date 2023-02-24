@@ -14,8 +14,8 @@ const UserSchema = new Schema({
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   savedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   taggedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-  notifications: [
-    {
+  notifications: [{ type: Schema.Types.ObjectId, ref: 'Notication' }],
+  /*     {
       type: { type: String, required: true },
       _id: { type: Schema.Types.ObjectId, required: true },
       user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -29,8 +29,8 @@ const UserSchema = new Schema({
         },
       },
       seen: { type: Boolean },
-    },
-  ],
+    }, */
+
   avatar: { type: String },
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });

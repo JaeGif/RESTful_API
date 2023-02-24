@@ -2,7 +2,7 @@ const { default: mongoose } = require('mongoose');
 const User = require('../models/user');
 const fs = require('fs');
 const sharp = require('sharp');
-
+const Notification = require('../models/notification');
 exports.users_get = (req, res, next) => {
   // find all users
   let { firstname, lastname, username, isadmin, reqLimit, skipToPage, q } =
@@ -269,9 +269,7 @@ exports.user_put = (req, res, next) => {
       switch (followObj.type) {
         case 'follower/add':
           for (let i = 0; i < userFound.followers; i++) {
-            console.log('entered 1');
             if (userFound.followers[i].toString() === followObj._id) {
-              console.log('already follower');
               return res.sendStatus(422);
             }
           }
@@ -282,11 +280,7 @@ exports.user_put = (req, res, next) => {
           break;
         case 'following/add':
           for (let i = 0; i < userFound.following; i++) {
-            console.log('entered 2');
-
             if (userFound.following[i].toString() === followObj._id) {
-              console.log('already following');
-
               return res.sendStatus(422);
             }
           }
@@ -311,24 +305,29 @@ exports.user_put = (req, res, next) => {
                 else {
                   // cast mongoose obj to JS obj first
                   addedUser = addedUser.toObject();
-
-                  User.findByIdAndUpdate(
-                    user._id,
-                    {
-                      $push: {
-                        notifications: {
-                          type: 'user/follow',
-                          _id: mongoose.Types.ObjectId(),
-                          user: addedUser._id,
-                          seen: false,
+                  const notification = new Notification({
+                    type: 'user/follow',
+                    _id: mongoose.Types.ObjectId(),
+                    user: addedUser._id,
+                    seen: false,
+                  }).save((err, notif) => {
+                    if (err) console.log(err);
+                    else {
+                      console.log(notif, 'follow');
+                      User.findByIdAndUpdate(
+                        user._id,
+                        {
+                          $push: {
+                            notifications: notif._id,
+                          },
                         },
-                      },
-                    },
-                    function (err, user) {
-                      if (err) console.log(err);
-                      else console.log(user.notifications[0]);
+                        function (err, user) {
+                          if (err) console.log(err);
+                          else console.log(user.notifications);
+                        }
+                      );
                     }
-                  );
+                  });
                 }
               });
             }
@@ -501,4 +500,29 @@ exports.user_delete = (req, res, next) => {
       res.sendStatus(200);
     }
   });
+};
+
+exports.user_notification_get = (req, res, next) => {
+  Notification.findById(
+    req.params.notificationid,
+    function (err, notification) {
+      if (err) console.log(err);
+      else {
+        return res.json({ notification });
+      }
+    }
+  );
+};
+exports.user_notifications_get = (req, res, next) => {
+  console.log('enter');
+
+  Notification.find({ user: req.params.userid })
+    .sort({ createdAt: -1 })
+    .exec(function (err, notifications) {
+      if (err) console.log(err);
+      else {
+        console.log(notifications);
+        return res.json({ notifications });
+      }
+    });
 };

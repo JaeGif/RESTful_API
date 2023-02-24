@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
 const sharp = require('sharp');
+const Notification = require('../models/notification');
 
 dayjs.extend(relativeTime);
 
@@ -287,22 +288,26 @@ exports.posts_post = (req, res, next) => {
           const userId = tagged[i];
           console.log('user', userId);
           console.log('new post', newPost._id);
+          const notification = new Notification({
+            type: 'user/tagged',
+            post: {
+              user: newPost.user,
+              _id: newPost._id,
+              thumbnail: {
+                url: newPost.images[0].url,
+                alt: newPost.images[0].alt,
+                filter: 'none',
+              },
+            },
+            seen: false,
+            _id: mongoose.Types.ObjectId(),
+          }).save((err, notif) => {
+            if (err) console.log(err);
+          });
           let updateFields = {
             $push: {
               taggedPosts: newPost._id,
-              notifications: {
-                type: 'user/tagged',
-                post: {
-                  user: newPost.user,
-                  _id: newPost._id,
-                  thumbnail: {
-                    url: newPost.images[0].url,
-                    alt: newPost.images[0].alt,
-                    filter: 'none',
-                  },
-                },
-                seen: false,
-              },
+              notifications: notif._id,
             },
           };
           User.findByIdAndUpdate(userId, updateFields, function (err, user) {
@@ -425,24 +430,28 @@ exports.post_post = (req, res, next) => {
                     }
                   }
                   // send notification to correct user
+                  const notification = new Notification({
+                    type: 'post/like',
+                    _id: req.params.postid,
+                    user: likedBy._id,
+
+                    post: {
+                      _id: likedBy.post._id,
+                      thumbnail: {
+                        url: likedBy.post.thumbnail.url,
+                        alt: likedBy.post.thumbnail.alt,
+                      },
+                    },
+                    seen: false,
+                    _id: mongoose.Types.ObjectId(),
+                  }).save((err, notif) => {
+                    if (err) console.log(err);
+                  });
                   User.findByIdAndUpdate(
                     user,
                     {
                       $push: {
-                        notifications: {
-                          type: 'post/like',
-                          _id: req.params.postid,
-                          user: likedBy._id,
-
-                          post: {
-                            _id: likedBy.post._id,
-                            thumbnail: {
-                              url: likedBy.post.thumbnail.url,
-                              alt: likedBy.post.thumbnail.alt,
-                            },
-                          },
-                          seen: false,
-                        },
+                        notifications: notif._id,
                       },
                     },
                     function (err, user) {
@@ -454,24 +463,27 @@ exports.post_post = (req, res, next) => {
                   );
                 } else {
                   // send notification to correct user if there are NO notifications
+                  const notification = new Notification({
+                    type: 'post/like',
+                    _id: req.params.postid,
+                    user: likedBy._id,
+
+                    post: {
+                      _id: likedBy.post._id,
+                      thumbnail: {
+                        url: likedBy.post.thumbnail.url,
+                        alt: likedBy.post.thumbnail.alt,
+                      },
+                    },
+                    seen: false,
+                  }).save((err, notif) => {
+                    if (err) console.log(err);
+                  });
                   User.findByIdAndUpdate(
                     user,
                     {
                       $push: {
-                        notifications: {
-                          type: 'post/like',
-                          _id: req.params.postid,
-                          user: likedBy._id,
-
-                          post: {
-                            _id: likedBy.post._id,
-                            thumbnail: {
-                              url: likedBy.post.thumbnail.url,
-                              alt: likedBy.post.thumbnail.alt,
-                            },
-                          },
-                          seen: false,
-                        },
+                        notifications: notif._id,
                       },
                     },
                     function (err, user) {
@@ -487,7 +499,6 @@ exports.post_post = (req, res, next) => {
           }
         }
       );
-      // send like notification
     });
   }
   if (req.body.comment) {
