@@ -290,6 +290,7 @@ exports.posts_post = (req, res, next) => {
           console.log('new post', newPost._id);
           const notification = new Notification({
             type: 'user/tagged',
+            recipient: userId,
             post: {
               user: newPost.user,
               _id: newPost._id,
@@ -299,19 +300,24 @@ exports.posts_post = (req, res, next) => {
                 filter: 'none',
               },
             },
-            seen: false,
             _id: mongoose.Types.ObjectId(),
           }).save((err, notif) => {
             if (err) console.log(err);
-          });
-          let updateFields = {
-            $push: {
-              taggedPosts: newPost._id,
-              notifications: notif._id,
-            },
-          };
-          User.findByIdAndUpdate(userId, updateFields, function (err, user) {
-            if (err) console.log(err);
+            else {
+              let updateFields = {
+                $push: {
+                  taggedPosts: newPost._id,
+                  notifications: { _id: notif._id, seen: false },
+                },
+              };
+              User.findByIdAndUpdate(
+                userId,
+                updateFields,
+                function (err, user) {
+                  if (err) console.log(err);
+                }
+              );
+            }
           });
         }
       }
@@ -434,7 +440,7 @@ exports.post_post = (req, res, next) => {
                     type: 'post/like',
                     _id: req.params.postid,
                     user: likedBy._id,
-
+                    recipient: likedBy.recipient,
                     post: {
                       _id: likedBy.post._id,
                       thumbnail: {
@@ -442,32 +448,35 @@ exports.post_post = (req, res, next) => {
                         alt: likedBy.post.thumbnail.alt,
                       },
                     },
-                    seen: false,
                     _id: mongoose.Types.ObjectId(),
                   }).save((err, notif) => {
                     if (err) console.log(err);
-                  });
-                  User.findByIdAndUpdate(
-                    user,
-                    {
-                      $push: {
-                        notifications: notif._id,
-                      },
-                    },
-                    function (err, user) {
-                      if (err) console.log(err);
-                      else {
-                        return user ? res.sendStatus(200) : res.sendStatus(404);
-                      }
+                    else {
+                      User.findByIdAndUpdate(
+                        user,
+                        {
+                          $push: {
+                            notifications: { _id: notif._id, seen: false },
+                          },
+                        },
+                        function (err, user) {
+                          if (err) console.log(err);
+                          else {
+                            return user
+                              ? res.sendStatus(200)
+                              : res.sendStatus(404);
+                          }
+                        }
+                      );
                     }
-                  );
+                  });
                 } else {
                   // send notification to correct user if there are NO notifications
                   const notification = new Notification({
                     type: 'post/like',
                     _id: req.params.postid,
                     user: likedBy._id,
-
+                    recipient: likedBy.recipient,
                     post: {
                       _id: likedBy.post._id,
                       thumbnail: {
@@ -475,24 +484,27 @@ exports.post_post = (req, res, next) => {
                         alt: likedBy.post.thumbnail.alt,
                       },
                     },
-                    seen: false,
                   }).save((err, notif) => {
                     if (err) console.log(err);
-                  });
-                  User.findByIdAndUpdate(
-                    user,
-                    {
-                      $push: {
-                        notifications: notif._id,
-                      },
-                    },
-                    function (err, user) {
-                      if (err) console.log(err);
-                      else {
-                        return user ? res.sendStatus(200) : res.sendStatus(404);
-                      }
+                    else {
+                      User.findByIdAndUpdate(
+                        user,
+                        {
+                          $push: {
+                            notifications: { _id: notif._id, seen: false },
+                          },
+                        },
+                        function (err, user) {
+                          if (err) console.log(err);
+                          else {
+                            return user
+                              ? res.sendStatus(200)
+                              : res.sendStatus(404);
+                          }
+                        }
+                      );
                     }
-                  );
+                  });
                 }
               }
             });

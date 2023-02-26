@@ -14,23 +14,12 @@ const UserSchema = new Schema({
   followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   savedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   taggedPosts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
-  notifications: [{ type: Schema.Types.ObjectId, ref: 'Notication' }],
-  /*     {
-      type: { type: String, required: true },
-      _id: { type: Schema.Types.ObjectId, required: true },
-      user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-      post: {
-        user: { type: Schema.Types.ObjectId, ref: 'User' },
-        _id: { type: Schema.Types.ObjectId, ref: 'Post' },
-        thumbnail: {
-          url: { type: String },
-          alt: { type: String },
-          filter: { type: String },
-        },
-      },
+  notifications: [
+    {
+      _id: { type: Schema.Types.ObjectId, ref: 'Notication' },
       seen: { type: Boolean },
-    }, */
-
+    },
+  ],
   avatar: { type: String },
   recentSearches: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });

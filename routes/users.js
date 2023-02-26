@@ -12,6 +12,7 @@ router.post('/users', auth.authenticate(), userController.users_post);
 router.get('/users/:userid', auth.authenticate(), userController.user_get);
 router.get(
   '/users/:userid/notifications',
+  auth.authenticate(),
   userController.user_notifications_get
 );
 router.get(
@@ -23,8 +24,8 @@ router.get(
 router.put(
   '/users/:userid',
   upload.single('image'),
-  /*   auth.authenticate(),
-   */ userController.user_put
+  auth.authenticate(),
+  userController.user_put
 );
 router.delete(
   '/users/:userid',

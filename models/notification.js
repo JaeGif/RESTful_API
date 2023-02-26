@@ -8,6 +8,7 @@ const NotificationSchema = new Schema({
   type: { type: String, required: true },
   _id: { type: Schema.Types.ObjectId, required: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  recipient: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   post: {
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     _id: { type: Schema.Types.ObjectId, ref: 'Post' },
@@ -17,7 +18,6 @@ const NotificationSchema = new Schema({
       filter: { type: String },
     },
   },
-  seen: { type: Boolean },
 });
 
 module.exports = mongoose.model('Notification', NotificationSchema);

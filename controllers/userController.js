@@ -309,7 +309,7 @@ exports.user_put = (req, res, next) => {
                     type: 'user/follow',
                     _id: mongoose.Types.ObjectId(),
                     user: addedUser._id,
-                    seen: false,
+                    recipient: followObj.recipient,
                   }).save((err, notif) => {
                     if (err) console.log(err);
                     else {
@@ -318,7 +318,7 @@ exports.user_put = (req, res, next) => {
                         user._id,
                         {
                           $push: {
-                            notifications: notif._id,
+                            notifications: { _id: notif._id, seen: false },
                           },
                         },
                         function (err, user) {
@@ -515,10 +515,10 @@ exports.user_notification_get = (req, res, next) => {
 };
 exports.user_notifications_get = (req, res, next) => {
   console.log('enter');
-
-  Notification.find({ user: req.params.userid })
+  console.log(req.params.userid);
+  Notification.find({ recipient: req.params.userid })
     .sort({ createdAt: -1 })
-    .exec(function (err, notifications) {
+    .exec((err, notifications) => {
       if (err) console.log(err);
       else {
         console.log(notifications);
