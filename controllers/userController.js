@@ -3,6 +3,8 @@ const User = require('../models/user');
 const fs = require('fs');
 const sharp = require('sharp');
 const Notification = require('../models/notification');
+const dayjs = require('dayjs');
+const relativeTime = require('dayjs/plugin/relativeTime');
 exports.users_get = (req, res, next) => {
   // find all users
   let { firstname, lastname, username, isadmin, reqLimit, skipToPage, q } =
@@ -338,27 +340,24 @@ exports.user_put = (req, res, next) => {
     }
   });
   if (req.body.seen) {
-    User.findById(req.params.userid, function (err, user) {
-      if (err) console.log(err);
-      else {
-        for (let i = 0; i < user.notifications.length; i++) {
-          User.findByIdAndUpdate(
-            req.params.userid,
-            {
-              $set: {
-                'notifications.$[].seen': true,
-              },
-            },
-            function (err, user) {
-              if (err) console.log(err);
-            }
-          );
+    console.log('seen');
+    User.findByIdAndUpdate(
+      req.params.userid,
+      {
+        $set: {
+          'notifications.$[].seen': true,
+        },
+      },
+      function (err, user) {
+        if (err) console.log(err);
+        else {
+          console.log(user);
+          return user
+            ? res.json({ notifications: user.notifications })
+            : res.sendStatus(404);
         }
-        return user
-          ? res.json({ notifications: user.notifications })
-          : res.sendStatus(404);
       }
-    });
+    );
   }
   if (req.body.removeRecent) {
     updateFields = { $pull: { recentSearches: req.body.removeRecent } };
@@ -517,12 +516,26 @@ exports.user_notifications_get = (req, res, next) => {
   console.log('enter');
   console.log(req.params.userid);
   Notification.find({ recipient: req.params.userid })
-    .sort({ createdAt: -1 })
+    .sort('-createdAt')
     .exec((err, notifications) => {
       if (err) console.log(err);
       else {
         console.log(notifications);
-        return res.json({ notifications });
+        let results = [...notifications];
+        for (let i = 0; i < results.length; i++) {
+          try {
+            let createdFormatted = dayjs().to(dayjs(results[i].createdAt));
+            results[i] = {
+              ...results[i]._doc,
+              ...{
+                createdAt: createdFormatted,
+              },
+            };
+          } catch (error) {
+            console.log('error parsing notification timestamp');
+          }
+        }
+        return res.json({ notifications: results });
       }
     });
 };
