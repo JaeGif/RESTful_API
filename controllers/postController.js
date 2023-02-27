@@ -387,7 +387,27 @@ exports.post_delete = (req, res, next) => {
   Post.findByIdAndDelete(req.params.postid, function (err, post) {
     if (err) return next(err);
     else {
-      res.sendStatus(200);
+      User.updateMany(
+        { savedPosts: post._id },
+        { $pull: { savedPosts: post._id } },
+        function (err, usersSaved) {
+          if (err) console.log(err);
+          else {
+            User.updateMany(
+              {
+                taggedPosts: post._id,
+              },
+              { $pull: { taggedPosts: post._id } },
+              function (err, usersTagged) {
+                if (err) console.log(err);
+                else {
+                  res.sendStatus(200);
+                }
+              }
+            );
+          }
+        }
+      );
     }
   });
 };
