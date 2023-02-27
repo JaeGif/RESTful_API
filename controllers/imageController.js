@@ -1,4 +1,5 @@
 const Image = require('../models/image');
+const fs = require('fs');
 
 exports.images_get = (req, res, next) => {
   Image.find({}).exec(function (err, images) {
@@ -23,6 +24,27 @@ exports.image_delete = (req, res, next) => {
     if (err) return next(err);
     else {
       return res.sendStatus(200);
+    }
+  });
+};
+exports.images_delete = (req, res, next) => {
+  const images = JSON.parse(req.body.images);
+  const user = req.body.user;
+  // user is the user id hex
+  // images is the image array to be deleted
+  console.log(images, user);
+
+  Image.deleteMany({ _id: { $in: images } }, function (err, docs) {
+    if (err) console.log(err);
+    else {
+      for (let i = 0; i < images.length; i++) {
+        fs.unlink(`${images[i].url}`, (err) => {
+          if (err) console.log(err);
+          else {
+            console.log('deleted image successfully');
+          }
+        });
+      }
     }
   });
 };

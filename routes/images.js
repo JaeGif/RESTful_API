@@ -7,5 +7,6 @@ router.get('/images', imageController.images_get);
 
 router.get('/images/:imageid', imageController.image_get);
 router.delete('/images/:imageid', imageController.image_delete);
+router.delete('images', imageController.images_delete);
 
 module.exports = router;
