@@ -12,6 +12,6 @@ router.delete(
   auth.authenticate(),
   imageController.image_delete
 );
-router.delete('images', auth.authenticate(), imageController.images_delete);
+router.delete('/images', auth.authenticate(), imageController.images_delete);
 
 module.exports = router;

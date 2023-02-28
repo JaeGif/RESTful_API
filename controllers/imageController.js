@@ -30,21 +30,32 @@ exports.image_delete = (req, res, next) => {
 exports.images_delete = (req, res, next) => {
   const images = JSON.parse(req.body.images);
   const user = req.body.user;
+
   // user is the user id hex
   // images is the image array to be deleted
   console.log(images, user);
-
-  Image.deleteMany({ _id: { $in: images } }, function (err, docs) {
-    if (err) console.log(err);
-    else {
-      for (let i = 0; i < images.length; i++) {
-        fs.unlink(`${images[i].url}`, (err) => {
+  Image.find({
+    _id: { $in:images  }},
+    function(err, docs) {
+      if (err) console.log(err);
+      else {
+        console.log('docs', docs);
+        for (let i = 0; i < docs.length; i++) {
+          fs.unlink(`${docs[i].url}`, (err) => {
+            if (err) console.log(err);
+            else {
+              console.log('deleted image successfully');
+            }
+          });
+        }
+        Image.deleteMany({ _id: { $in: images } }, function (err, status) {
           if (err) console.log(err);
           else {
-            console.log('deleted image successfully');
+            console.log('deleted');
           }
         });
       }
-    }
-  });
+    }),
+  
+  
 };
