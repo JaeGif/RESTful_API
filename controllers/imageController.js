@@ -34,9 +34,11 @@ exports.images_delete = (req, res, next) => {
   // user is the user id hex
   // images is the image array to be deleted
   console.log(images, user);
-  Image.find({
-    _id: { $in:images  }},
-    function(err, docs) {
+  Image.find(
+    {
+      _id: { $in: images },
+    },
+    function (err, docs) {
       if (err) console.log(err);
       else {
         console.log('docs', docs);
@@ -47,15 +49,15 @@ exports.images_delete = (req, res, next) => {
               console.log('deleted image successfully');
             }
           });
+
+          Image.deleteMany({ _id: { $in: images } }, function (err, status) {
+            if (err) console.log(err);
+            else {
+              console.log('deleted');
+            }
+          });
         }
-        Image.deleteMany({ _id: { $in: images } }, function (err, status) {
-          if (err) console.log(err);
-          else {
-            console.log('deleted');
-          }
-        });
       }
-    }),
-  
-  
+    }
+  );
 };
