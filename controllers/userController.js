@@ -508,21 +508,37 @@ exports.user_delete = (req, res, next) => {
         if (err) console.log(err);
         else {
           console.log('post');
+          Post.updateMany(
+            { like: user },
+            { $pull: { like: user } },
+            function (err, likeDocs) {
+              if (err) console.log(err);
+              else {
+                console.log('likes removed');
+                Notification.deleteMany(
+                  { $or: [{ user: user }, { 'post.user': user }] },
+                  function (err, notifDocs) {
+                    if (err) console.log(err);
+                    else {
+                      console.log('notification');
 
-          Notification.deleteMany({ user: user }, function (err, notifDocs) {
-            if (err) console.log(err);
-            else {
-              console.log('notification');
+                      Comment.deleteMany(
+                        { user: user },
+                        function (err, commentDocs) {
+                          if (err) console.log(err);
+                          else {
+                            console.log('comment done');
 
-              Comment.deleteMany({ user: user }, function (err, commentDocs) {
-                if (err) console.log(err);
-                else {
-                  console.log('comment done');
-                  return res.sendStatus(200);
-                }
-              });
+                            return res.sendStatus(200);
+                          }
+                        }
+                      );
+                    }
+                  }
+                );
+              }
             }
-          });
+          );
         }
       });
     }
