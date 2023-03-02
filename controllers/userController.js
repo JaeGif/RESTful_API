@@ -504,32 +504,54 @@ exports.user_delete = (req, res, next) => {
     else {
       console.log('user');
 
-      Post.deleteMany({ user: user }, function (err, postDocs) {
-        if (err) console.log(err);
-        else {
-          console.log('post');
-          Post.updateMany(
-            { like: user },
-            { $pull: { like: user } },
-            function (err, likeDocs) {
+      User.updateMany(
+        {
+          $or: [
+            { followers: user },
+            { following: user },
+            { recentSearches: user },
+          ],
+        },
+        {
+          $pull: { followers: user, following: user, recentSearches: user },
+        },
+        function (err, followDocs) {
+          if (err) console.log(err);
+          else {
+            User.updateMany(
+              { following: user },
+              { $pull: { following: user } },
+              function (err, followingDocs) {}
+            );
+            Post.deleteMany({ user: user }, function (err, postDocs) {
               if (err) console.log(err);
               else {
-                console.log('likes removed');
-                Notification.deleteMany(
-                  { $or: [{ user: user }, { 'post.user': user }] },
-                  function (err, notifDocs) {
+                console.log('post');
+                Post.updateMany(
+                  { like: user },
+                  { $pull: { like: user } },
+                  function (err, likeDocs) {
                     if (err) console.log(err);
                     else {
-                      console.log('notification');
-
-                      Comment.deleteMany(
-                        { user: user },
-                        function (err, commentDocs) {
+                      console.log('likes removed');
+                      Notification.deleteMany(
+                        { $or: [{ user: user }, { 'post.user': user }] },
+                        function (err, notifDocs) {
                           if (err) console.log(err);
                           else {
-                            console.log('comment done');
+                            console.log('notification');
 
-                            return res.sendStatus(200);
+                            Comment.deleteMany(
+                              { user: user },
+                              function (err, commentDocs) {
+                                if (err) console.log(err);
+                                else {
+                                  console.log('comment done');
+
+                                  return res.sendStatus(200);
+                                }
+                              }
+                            );
                           }
                         }
                       );
@@ -537,10 +559,10 @@ exports.user_delete = (req, res, next) => {
                   }
                 );
               }
-            }
-          );
+            });
+          }
         }
-      });
+      );
     }
   });
 };
