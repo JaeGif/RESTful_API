@@ -1,8 +1,11 @@
-const { default: mongoose } = require('mongoose');
+const { mongoose } = require('mongoose');
 const User = require('../models/user');
+const Post = require('../models/post');
+const Comment = require('../models/comment');
+const Notification = require('../models/notification');
+
 const fs = require('fs');
 const sharp = require('sharp');
-const Notification = require('../models/notification');
 const dayjs = require('dayjs');
 const relativeTime = require('dayjs/plugin/relativeTime');
 exports.users_get = (req, res, next) => {
@@ -493,10 +496,35 @@ exports.user_put = (req, res, next) => {
 };
 
 exports.user_delete = (req, res, next) => {
-  User.findByIdAndDelete(req.params.userId, function (err, user) {
+  const user = req.params.userid;
+  console.log('userCheck:', user);
+
+  User.findByIdAndDelete(user, function (err, userDoc) {
     if (err) return next(err);
     else {
-      res.sendStatus(200);
+      console.log('user');
+
+      Post.deleteMany({ user: user }, function (err, postDocs) {
+        if (err) console.log(err);
+        else {
+          console.log('post');
+
+          Notification.deleteMany({ user: user }, function (err, notifDocs) {
+            if (err) console.log(err);
+            else {
+              console.log('notification');
+
+              Comment.deleteMany({ user: user }, function (err, commentDocs) {
+                if (err) console.log(err);
+                else {
+                  console.log('comment done');
+                  return res.sendStatus(200);
+                }
+              });
+            }
+          });
+        }
+      });
     }
   });
 };
