@@ -15,7 +15,7 @@ exports.posts_get = (req, res, next) => {
   let { title, userid, published, page, returnLimit, u } = req.query;
   // defaults for paginating
   if (typeof returnLimit === 'undefined') {
-    returnLimit = 10;
+    returnLimit = 5;
   }
   if (typeof page === 'undefined') {
     page = 0;
@@ -85,7 +85,9 @@ exports.posts_get = (req, res, next) => {
                   console.log('error parsing post/comment dates', error);
                 }
               }
-              res.json({ posts: results });
+              const nextCursor = parseInt(page) + results.length;
+              console.log('nextCursor', nextCursor);
+              res.json({ posts: results, nextCursor });
             }
           });
       }
@@ -171,8 +173,6 @@ exports.posts_get = (req, res, next) => {
 };
 
 exports.posts_post = (req, res, next) => {
-  console.log('files', req.files);
-  console.log('body', req.body);
   let user = req.body.user;
   let location = req.body.location;
   let alt = req.body.alt;
@@ -203,7 +203,6 @@ exports.posts_post = (req, res, next) => {
   // first make image id's since these will be needed async with Post, and now the async post reqs can be taken out of the for loop
   // with no need for fancy promises, or the like. These idx are assigned appropriately when their image is allllll done.
   let imageIdx = [];
-  console.log('data', imageData);
   for (let i = 0; i < req.files.length; i++) {
     imageIdx.push(mongoose.Types.ObjectId());
   }
@@ -222,7 +221,6 @@ exports.posts_post = (req, res, next) => {
           });
 
           if (typeof req.files !== 'undefined') {
-            console.log('single data', imageData[i].filter);
             const image = new Image({
               name: `${Date.now()}-odin-img`,
               url: newPathStr,
@@ -265,8 +263,7 @@ exports.posts_post = (req, res, next) => {
 
     // New POST BREAKPOINT
   }
-  console.log('imageIDX', imageIdx);
-  console.log(taggedUsers);
+
   const newPost = new Post({
     post: modifiedPost,
     user: user,
@@ -282,12 +279,10 @@ exports.posts_post = (req, res, next) => {
     else {
       if (taggedPost.length) {
         let tagged = taggedPost;
-        console.log('tagged,', tagged);
         newPost = newPost.toObject();
         for (let i = 0; i < tagged.length; i++) {
           const userId = tagged[i];
-          console.log('user', userId);
-          console.log('new post', newPost._id);
+
           const notification = new Notification({
             type: 'user/tagged',
             recipient: userId,
@@ -422,8 +417,6 @@ exports.post_post = (req, res, next) => {
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
       else {
-        console.log(post.like, likedBy);
-
         updateFields = { $push: { like: likedBy._id } };
         for (let i = 0; i < post.like.length; i++) {
           if (post.like[i].toString() === likedBy._id) {
@@ -574,7 +567,6 @@ exports.post_post = (req, res, next) => {
 };
 exports.post_put = (req, res, next) => {
   let updateFields = {};
-  console.log(req.body);
   if (req.body.post) {
     updateFields = { ...updateFields, $set: { post: req.body.post } };
   }
@@ -594,7 +586,6 @@ exports.post_put = (req, res, next) => {
     function (err, uPost) {
       if (err) console.log(err);
       else {
-        console.log('found img');
         for (let i = 0; i < content.length; i++) {
           Image.findByIdAndDelete(content[i], function (err) {
             if (err) console.log(err);

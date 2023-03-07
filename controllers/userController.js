@@ -119,7 +119,6 @@ exports.user_get = (req, res, next) => {
     const suggestedLimit = Number(req.query.s);
     User.findById(req.params.userid, function (err, loggedUser) {
       if (err) console.log(err);
-      if (err) console.log(err);
       else {
         User.find({ _id: { $in: loggedUser.following } }).exec(function (
           err,
@@ -149,52 +148,32 @@ exports.user_get = (req, res, next) => {
             // if 5 still not fulfilled by the end of previous results
             // check for followers user is not following back
             if (count < suggestedLimit) {
-              console.log('following ', loggedUser.following);
-              console.log('followers ', loggedUser.followers);
-
-              console.log(count, suggestedLimit);
               // check followers
               followerloop: for (
                 let i = 0;
                 i < loggedUser.followers.length;
                 i++
               ) {
-                console.log('0');
-
                 if (
                   // if you already have this guy followed check the rest of your followers
                   loggedUser.following.includes(
                     loggedUser.followers[i].toString()
                   )
                 ) {
-                  console.log('1,', i, loggedUser.followers.length);
                   continue followerloop;
                 }
-                console.log('1.5');
                 followingloop: for (
                   let j = 0;
                   j < loggedUser.following.length;
                   j++
                 ) {
-                  console.log('2');
-
                   if (results.length >= suggestedLimit) {
-                    console.log('3');
-
                     break followerloop;
                   }
                   if (
                     loggedUser.followers[i].toString() !==
                     loggedUser.following[j].toString()
                   ) {
-                    console.log('4');
-
-                    console.log(
-                      'i',
-                      loggedUser.followers[i].toString(),
-                      'j',
-                      loggedUser.following[j].toString()
-                    );
                     resultsloop: for (let k = 0; k < results.length; k++) {
                       if (
                         // don't add duplicates, and don't add yourself.
@@ -203,24 +182,17 @@ exports.user_get = (req, res, next) => {
                         loggedUser.followers[i].toString() ===
                           loggedUser._id.toString()
                       ) {
-                        console.log('5');
-
                         continue followingloop;
                       }
                     }
-                    console.log('6');
                     count++;
                     results.push({
                       user: loggedUser.followers[i].toString(),
                       type: 'user/follower',
                     });
-                    console.log('7');
                   }
-                  console.log('8');
                 }
-                console.log('9');
               }
-              console.log(results);
 
               if (count < suggestedLimit) {
                 User.find({ _id: { $nin: loggedUser.following } })
@@ -318,7 +290,6 @@ exports.user_put = (req, res, next) => {
                   }).save((err, notif) => {
                     if (err) console.log(err);
                     else {
-                      console.log(notif, 'follow');
                       User.findByIdAndUpdate(
                         user._id,
                         {
@@ -343,7 +314,6 @@ exports.user_put = (req, res, next) => {
     }
   });
   if (req.body.seen) {
-    console.log('seen');
     User.findByIdAndUpdate(
       req.params.userid,
       {
@@ -391,9 +361,6 @@ exports.user_put = (req, res, next) => {
             removeLastElement,
             function (err, user) {
               if (err) throw err;
-              else {
-                console.log('popped');
-              }
             }
           );
         }
@@ -497,13 +464,10 @@ exports.user_put = (req, res, next) => {
 
 exports.user_delete = (req, res, next) => {
   const user = req.params.userid;
-  console.log('userCheck:', user);
 
   User.findByIdAndDelete(user, function (err, userDoc) {
     if (err) return next(err);
     else {
-      console.log('user');
-
       User.updateMany(
         {
           $or: [
@@ -526,28 +490,22 @@ exports.user_delete = (req, res, next) => {
             Post.deleteMany({ user: user }, function (err, postDocs) {
               if (err) console.log(err);
               else {
-                console.log('post');
                 Post.updateMany(
                   { like: user },
                   { $pull: { like: user } },
                   function (err, likeDocs) {
                     if (err) console.log(err);
                     else {
-                      console.log('likes removed');
                       Notification.deleteMany(
                         { $or: [{ user: user }, { 'post.user': user }] },
                         function (err, notifDocs) {
                           if (err) console.log(err);
                           else {
-                            console.log('notification');
-
                             Comment.deleteMany(
                               { user: user },
                               function (err, commentDocs) {
                                 if (err) console.log(err);
                                 else {
-                                  console.log('comment done');
-
                                   return res.sendStatus(200);
                                 }
                               }
@@ -579,14 +537,11 @@ exports.user_notification_get = (req, res, next) => {
   );
 };
 exports.user_notifications_get = (req, res, next) => {
-  console.log('enter');
-  console.log(req.params.userid);
   Notification.find({ recipient: req.params.userid })
     .sort('-createdAt')
     .exec((err, notifications) => {
       if (err) console.log(err);
       else {
-        console.log(notifications);
         let results = [...notifications];
         for (let i = 0; i < results.length; i++) {
           try {
