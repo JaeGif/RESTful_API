@@ -12,15 +12,14 @@ const Notification = require('../models/notification');
 dayjs.extend(relativeTime);
 
 exports.posts_get = (req, res, next) => {
-  let { title, userid, published, page, returnLimit, u } = req.query;
+  let { title, userid, published, cursor, returnLimit, u } = req.query;
   // defaults for paginating
-  if (typeof returnLimit === 'undefined') {
-    returnLimit = 5;
-  }
-  if (typeof page === 'undefined') {
-    page = 0;
-  }
-  const skipBy = returnLimit * parseInt(page);
+
+  returnLimit = returnLimit || 5;
+  cursor = cursor || 0;
+
+  const skipBy = parseInt(cursor);
+  console.log(skipBy);
 
   if (u) {
     User.findById(u, function (err, user) {
@@ -28,12 +27,13 @@ exports.posts_get = (req, res, next) => {
       else {
         const usersToDisplay = [...user.following, u];
         Post.find({ user: { $in: usersToDisplay } })
-          .limit(returnLimit)
-          .skip(skipBy)
           .sort('-createdAt')
+          .skip(skipBy)
+          .limit(returnLimit)
           .exec(function (err, posts) {
             if (err) console.log(err);
             else {
+              console.log('posts', posts);
               // process for filtering
               let results = [...posts];
               if (title) {
@@ -85,9 +85,10 @@ exports.posts_get = (req, res, next) => {
                   console.log('error parsing post/comment dates', error);
                 }
               }
-              const nextCursor = parseInt(page) + results.length;
-              console.log('nextCursor', nextCursor);
-              res.json({ posts: results, nextCursor });
+              const nextCursor = parseInt(cursor) + results.length;
+              const previousCursor = parseInt(cursor);
+
+              res.json({ posts: results, nextCursor, previousCursor });
             }
           });
       }
