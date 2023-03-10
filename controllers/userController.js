@@ -406,6 +406,7 @@ exports.user_put = (req, res, next) => {
     const dateRef = new Date().toISOString();
     const newPathStr = `uploads/${req.params.userid}/${dateRef}_${req.file.filename}.jpeg`;
     sharp(oldPath)
+      .rotate()
       .resize({ fit: sharp.fit.contain, width: 500 })
       .jpeg({ lossless: true, quality: 100 })
       .toFile(newPathStr, (err, info) => {
