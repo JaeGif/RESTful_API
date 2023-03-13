@@ -561,3 +561,14 @@ exports.user_notifications_get = (req, res, next) => {
       }
     });
 };
+exports.usernames_check = (req, res, next) => {
+  console.log('checling');
+  User.find({ username: req.body.username }).exec((err, users) => {
+    if (err) throw err;
+    console.log(users);
+    if (users.length >= 1) res.sendStatus(409); // confilct in usernames
+    else {
+      res.sendStatus(200);
+    }
+  });
+};

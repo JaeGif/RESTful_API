@@ -8,6 +8,7 @@ const userController = require('../controllers/userController');
 
 /* GET users listing. */
 router.get('/users', auth.authenticate(), userController.users_get);
+router.post('/users/usernames', userController.usernames_check);
 router.post('/users', auth.authenticate(), userController.users_post);
 router.get('/users/:userid', auth.authenticate(), userController.user_get);
 router.get(

@@ -24,17 +24,18 @@ exports.login = function (req, res) {
 };
 
 exports.register = function (req, res) {
-  console.log(req.body);
+  const { firstName, lastName, username, password } = req.body;
   const userId = mongoose.Types.ObjectId();
+  console.log(firstName);
 
   fs.mkdirSync(`./uploads/${userId.toString()}`, { recursive: true });
 
   User.register(
     new User({
       _id: userId,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      username: req.body.username,
+      firstName: firstName,
+      lastName: lastName,
+      username: username,
       bio: '',
       website: '',
       isAdmin: false,
@@ -46,9 +47,10 @@ exports.register = function (req, res) {
       notifications: [],
       recentSearches: [],
     }),
-    req.body.password,
+    password,
     function (err, msg) {
       if (err) {
+        console.log(err);
         res.sendStatus(400);
       } else {
         res.sendStatus(200);
