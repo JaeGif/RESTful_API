@@ -19,7 +19,6 @@ exports.posts_get = (req, res, next) => {
   cursor = cursor || 0;
 
   const skipBy = parseInt(cursor);
-  console.log(skipBy);
 
   if (u) {
     User.findById(u, function (err, user) {
@@ -33,7 +32,6 @@ exports.posts_get = (req, res, next) => {
           .exec(function (err, posts) {
             if (err) console.log(err);
             else {
-              console.log('posts', posts);
               // process for filtering
               let results = [...posts];
               if (title) {
@@ -286,6 +284,7 @@ exports.posts_post = (req, res, next) => {
 
           const notification = new Notification({
             type: 'user/tagged',
+            user: user,
             recipient: userId,
             post: {
               user: newPost.user,
@@ -303,9 +302,10 @@ exports.posts_post = (req, res, next) => {
               let updateFields = {
                 $push: {
                   taggedPosts: newPost._id,
-                  notifications: { _id: notif._id, seen: false },
+                  notifications: { _id: notif._id, seen: false, user: userId },
                 },
               };
+              console.log('pushing', updateFields, 'to', userId);
               User.findByIdAndUpdate(
                 userId,
                 updateFields,
