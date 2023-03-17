@@ -128,12 +128,22 @@ exports.user_get = (req, res, next) => {
           if (err) console.log(err);
           else {
             for (let i = 0; i < users.length; i++) {
-              for (let j = 0; j < users[i].following.length; j++) {
+              followingNotFollowed: for (
+                let j = 0;
+                j < users[i].following.length;
+                j++
+              ) {
                 if (
                   !loggedUser.following.includes(
                     users[i].following[j].toString()
                   )
                 ) {
+                  // guard this against multiple entries
+                  for (let k = 0; k < results.length; k++) {
+                    if (results[k].user === users[i].following[j].toString()) {
+                      continue followingNotFollowed;
+                    }
+                  }
                   if (count < suggestedLimit) {
                     count++;
                     results.push({
@@ -147,6 +157,7 @@ exports.user_get = (req, res, next) => {
             }
             // if 5 still not fulfilled by the end of previous results
             // check for followers user is not following back
+
             if (count < suggestedLimit) {
               // check followers
               followerloop: for (
@@ -213,12 +224,32 @@ exports.user_get = (req, res, next) => {
                           }
                         }
                       }
+                      console.log(results);
+
+                      for (let i = 0; i < results.length; i++) {
+                        for (let j = 0; j < results.length; j++) {
+                          if (results[i].user === results[j].user) {
+                            results = results.splice(i, 1);
+                            console.log(results);
+                          }
+                        }
+                      }
                       return users
                         ? res.json({ suggested: results })
                         : res.sendStatus(404);
                     }
                   });
               } else {
+                console.log(results);
+
+                for (let i = 0; i < results.length; i++) {
+                  for (let j = 0; j < results.length; j++) {
+                    if (results[i].user === results[j].user) {
+                      results = results.splice(i, 1);
+                      console.log(results);
+                    }
+                  }
+                }
                 return users
                   ? res.json({ suggested: results })
                   : res.sendStatus(404);
