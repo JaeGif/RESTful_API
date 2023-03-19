@@ -413,7 +413,6 @@ exports.post_post = (req, res, next) => {
 
   if (req.body.like) {
     const likedBy = JSON.parse(req.body.like);
-    // find individual post to check for likes
 
     Post.findById(req.params.postid, function (err, post) {
       if (err) console.log(err);
