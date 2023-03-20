@@ -4,10 +4,8 @@ const Post = require('../models/post');
 const Comment = require('../models/comment');
 const Notification = require('../models/notification');
 
-const fs = require('fs');
 const sharp = require('sharp');
 const dayjs = require('dayjs');
-const relativeTime = require('dayjs/plugin/relativeTime');
 exports.users_get = (req, res, next) => {
   // find all users
   let { firstname, lastname, username, isadmin, reqLimit, skipToPage, q } =
@@ -406,11 +404,12 @@ exports.user_put = (req, res, next) => {
   }
   if (req.body.savedPost) {
     let savedPost = JSON.parse(req.body.savedPost);
+
     updateFields = { $push: { savedPosts: savedPost } };
 
     User.findById(req.params.userid, function (err, user) {
       for (let i = 0; i < user.savedPosts.length; i++) {
-        if (savedPost === user.savedPost) {
+        if (savedPost === user.savedPosts[i].toString()) {
           updateFields = { $pull: { savedPosts: savedPost } };
         }
       }
