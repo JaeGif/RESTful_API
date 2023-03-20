@@ -7,6 +7,7 @@ const Comment = require('../models/comment');
 const Image = require('../models/image');
 const async = require('async');
 const fs = require('fs');
+const Notification = require('../models/notification');
 
 // import { faker } from '@faker-js/faker/locale/de';
 const mongoDb = process.env.MONGO_2_URL; // DO NOT PUSH THIS TO PROD
@@ -22,7 +23,10 @@ db.on('error', console.error.bind(console, 'mongo connection error'));
 User.updateMany({}, { $unset: { notifications: [] } }, function (err, post) {
   if (err) console.log(err);
   else {
-    console.log('done');
-    db.close();
+    Notification.deleteMany({}).exec((err, doc) => {
+      if (err) console.log(err);
+      else console.log('done');
+      db.close();
+    });
   }
 });
