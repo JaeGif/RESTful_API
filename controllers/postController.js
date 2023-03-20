@@ -440,15 +440,18 @@ exports.post_post = (req, res, next) => {
                   for (let i = 0; i < user.notifications.length; i++) {
                     // if the notification is already present, DO NOT SEND
                     if (
-                      user.notifications[i].type === 'post/like' &&
-                      user.notifications[i]._id.toString() ===
-                        fullPost._id.toString() &&
-                      user.notifications[i].user.toString() === likedBy._id
+                      (user.notifications[i].type === 'post/like' &&
+                        user.notifications[i]._id.toString() ===
+                          fullPost._id.toString() &&
+                        user.notifications[i].user.toString() ===
+                          likedBy._id) ||
+                      likedBy.recipient === likedBy._id
                     ) {
                       return user ? res.sendStatus(200) : res.sendStatus(404);
                     }
                   }
                   // send notification to correct user
+
                   const notification = new Notification({
                     type: 'post/like',
                     _id: req.params.postid,
@@ -485,6 +488,7 @@ exports.post_post = (req, res, next) => {
                   });
                 } else {
                   // send notification to correct user if there are NO notifications
+
                   const notification = new Notification({
                     type: 'post/like',
                     _id: req.params.postid,
