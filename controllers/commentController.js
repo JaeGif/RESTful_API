@@ -2,8 +2,26 @@ const Comment = require('../models/comment');
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 const dayjs = require('dayjs');
+var updateLocale = require('dayjs/plugin/updateLocale');
+dayjs.extend(updateLocale);
 
-dayjs.extend(relativeTime);
+dayjs.updateLocale('en', {
+  relativeTime: {
+    future: 'in%s',
+    past: '%s',
+    s: 'now',
+    m: 'a minute ago',
+    mm: '%dm',
+    h: 'an hour ago',
+    hh: '%dh',
+    d: 'a day ago',
+    dd: '%dd',
+    M: 'a month ago',
+    MM: '%dm',
+    y: 'a year ago',
+    yy: '%dy',
+  },
+});
 
 exports.comments_get = (req, res, next) => {
   // get all comments and be filterable
@@ -47,6 +65,7 @@ exports.comment_get = (req, res, next) => {
       if (String(comment.createdAt) !== String(comment.updatedAt)) {
         edited = true;
       }
+      console.log(createdFormatted);
       result = {
         ...comment._doc,
         ...{
