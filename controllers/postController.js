@@ -70,7 +70,8 @@ exports.posts_get = (req, res, next) => {
                   ) {
                     editedPost = true;
                   }
-
+                  createdFormatted = createdFormatted.toLowerCase();
+                  updatedFormatted = updatedFormatted.toLowerCase();
                   results[i] = {
                     ...results[i]._doc,
                     ...{
@@ -152,6 +153,9 @@ exports.posts_get = (req, res, next) => {
                 ) {
                   edited = true;
                 }
+                createdFormatted = createdFormatted.toLowerCase();
+                updatedFormatted = updatedFormatted.toLowerCase();
+
                 results[i].comments[j] = {
                   ...results[i].comments[j],
                   ...{
@@ -361,6 +365,8 @@ exports.post_get = (req, res, next) => {
             ) {
               edited = true;
             }
+            createdFormatted = createdFormatted.toLowerCase();
+            updatedFormatted = updatedFormatted.toLowerCase();
             results[i].comments[j] = {
               ...results[i].comments[j],
               ...{

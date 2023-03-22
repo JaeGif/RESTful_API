@@ -15,9 +15,9 @@ dayjs.updateLocale('en', {
     h: 'an hour ago',
     hh: '%dh',
     d: 'a day ago',
-    dd: '%dd',
+    dd: '%d days ago',
     M: 'a month ago',
-    MM: '%dm',
+    MM: '%dmo',
     y: 'a year ago',
     yy: '%dy',
   },
@@ -66,6 +66,8 @@ exports.comment_get = (req, res, next) => {
         edited = true;
       }
       console.log(createdFormatted);
+      createdFormatted = createdFormatted.toLowerCase();
+      updatedFormatted = updatedFormatted.toLowerCase();
       result = {
         ...comment._doc,
         ...{
