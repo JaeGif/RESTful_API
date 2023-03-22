@@ -199,7 +199,7 @@ exports.posts_post = (req, res, next) => {
     modifiedAlt = `An image by ${user.username} taken in ${locationStr}`;
   }
   if (modifiedPost == 'null') {
-    modifiedPost = 'I forgot to add a comment, whoops!';
+    modifiedPost = ' ';
   }
 
   // handle adding multiple images/contents
@@ -242,7 +242,9 @@ exports.posts_post = (req, res, next) => {
     } else {
       // video content
       newPathStr = `uploads/${user}/${req.files[i].filename}`;
-
+      if (i === 0) {
+        tagThumbnail = newPathStr;
+      }
       fs.renameSync(oldPath, newPathStr, function (err) {
         if (err) throw err;
         newPath.push(newPathStr);
@@ -285,7 +287,7 @@ exports.posts_post = (req, res, next) => {
         newPost = newPost.toObject();
         for (let i = 0; i < tagged.length; i++) {
           const userId = tagged[i];
-
+          console.log(newPost);
           const notification = new Notification({
             type: 'user/tagged',
             user: user,
